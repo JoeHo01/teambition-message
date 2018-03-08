@@ -5,4 +5,4 @@ spring:
     driver-class-name: com.mysql.jdbc.Driver
     password: root
     username: root
-    url: jdbc:mysql://127.0.0.1:3306/it_chat
+    url: jdbc:mysql://127.0.0.1:3306/teambition_message
