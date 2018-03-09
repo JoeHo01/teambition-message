@@ -8,7 +8,7 @@ import com.d1m.tbmessage.server.wechat.thread.CheckLoginStatusThread;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.d1m.tbmessage.common.SleepUtils;
+import com.d1m.tbmessage.common.SleepUtil;
 
 /**
  * 登陆控制器
@@ -35,7 +35,7 @@ public class LoginController {
 					LOG.info("1. 获取微信UUID");
 					while (loginService.getUuid() == null) {
 						LOG.warn("1.1. 获取微信UUID失败，两秒后重新获取");
-						SleepUtils.sleep(2000);
+						SleepUtil.sleep(2000);
 					}
 				}
 				LOG.info("2. 获取登陆二维码图片");

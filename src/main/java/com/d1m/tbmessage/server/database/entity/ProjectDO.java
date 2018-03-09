@@ -8,9 +8,9 @@ public class ProjectDO {
 
 	private String description;
 
-	private String project_tag;
+	private String projectTag;
 
-	private String organization_id;
+	private String organizationId;
 
 	public String getId() {
 		return id;
@@ -36,19 +36,19 @@ public class ProjectDO {
 		this.description = description;
 	}
 
-	public String getProject_tag() {
-		return project_tag;
+	public String getProjectTag() {
+		return projectTag;
 	}
 
-	public void setProject_tag(String project_tag) {
-		this.project_tag = project_tag;
+	public void setProjectTag(String projectTag) {
+		this.projectTag = projectTag;
 	}
 
-	public String getOrganization_id() {
-		return organization_id;
+	public String getOrganizationId() {
+		return organizationId;
 	}
 
-	public void setOrganization_id(String organization_id) {
-		this.organization_id = organization_id;
+	public void setOrganizationId(String organizationId) {
+		this.organizationId = organizationId;
 	}
 }

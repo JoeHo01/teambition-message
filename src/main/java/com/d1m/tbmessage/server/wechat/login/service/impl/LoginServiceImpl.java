@@ -39,7 +39,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import com.d1m.tbmessage.common.SleepUtils;
+import com.d1m.tbmessage.common.SleepUtil;
 import com.d1m.tbmessage.server.wechat.core.MessageTool;
 
 /**
@@ -79,7 +79,7 @@ public class LoginServiceImpl implements ILoginService {
 
 		// long time = 4000;
 		while (!isLogin) {
-			// SleepUtils.sleep(time += 1000);
+			// SleepUtil.sleep(time += 1000);
 			long millis = System.currentTimeMillis();
 			params.add(new BasicNameValuePair(LoginParaEnum.R.para(), String.valueOf(millis / 1579L)));
 			params.add(new BasicNameValuePair(LoginParaEnum._.para(), String.valueOf(millis)));
@@ -617,7 +617,7 @@ public class LoginServiceImpl implements ILoginService {
 		params.add(new BasicNameValuePair("r", String.valueOf(new Date().getTime())));
 		params.add(new BasicNameValuePair("synckey", (String) core.getLoginInfo().get("synckey")));
 		params.add(new BasicNameValuePair("_", String.valueOf(new Date().getTime())));
-		SleepUtils.sleep(7);
+		SleepUtil.sleep(7);
 		try {
 			HttpEntity entity = httpService.doGet(url, params, true, null);
 			if (entity == null) {

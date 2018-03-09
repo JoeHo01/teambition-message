@@ -1,7 +1,7 @@
 package com.d1m.tbmessage.server.database.entity;
 
 
-public class MsgDO {
+public class MessageDO {
 	private long id;
 	private String groupId;
 	private String sender;

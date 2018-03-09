@@ -1,4 +1,4 @@
-package com.d1m.tbmessage.server.teambition.constant;
+package com.d1m.tbmessage.server.teambition.config;
 
 public enum TeambitionURL {
 	BASE("https://www.teambition.com","Teambition URL"),

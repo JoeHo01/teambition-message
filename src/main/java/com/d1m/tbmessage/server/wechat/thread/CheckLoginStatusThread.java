@@ -4,7 +4,7 @@ import com.d1m.tbmessage.server.wechat.core.Core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.d1m.tbmessage.common.SleepUtils;
+import com.d1m.tbmessage.common.SleepUtil;
 
 /**
  * 检查微信在线状态
@@ -31,7 +31,7 @@ public class CheckLoginStatusThread implements Runnable {
 				core.setAlive(false);
 				LOG.info("微信已离线");
 			}
-			SleepUtils.sleep(10 * 1000); // 休眠10秒
+			SleepUtil.sleep(10 * 1000); // 休眠10秒
 		}
 	}
 }

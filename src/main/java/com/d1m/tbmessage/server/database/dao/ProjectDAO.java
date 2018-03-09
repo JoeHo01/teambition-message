@@ -1,5 +1,6 @@
 package com.d1m.tbmessage.server.database.dao;
 
+import com.d1m.tbmessage.server.database.entity.ProjectDO;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.InsertProvider;
 import org.springframework.stereotype.Repository;
@@ -14,7 +15,10 @@ public interface ProjectDAO {
 	char COMMA = ',';
 
 	@InsertProvider(type = ProjectProvider.class, method = "addProjects")
-	void addProjects(List<Map<String, String>> projects);
+	void addProjects(List<ProjectDO> projects);
+
+	@Delete("DELETE FROM project WHERE organization_id = #{organizationId}")
+	void deleteProjects(String organizationId);
 
 	class ProjectProvider{
 		public String addProjects(Map<String, ArrayList> map) {
@@ -22,14 +26,11 @@ public interface ProjectDAO {
 			sql.append("(id, name, description, project_tag, organization_id)").append(" VALUES ");
 			Iterator projects = map.get("list").iterator();
 			while (projects.hasNext()){
-				Map<String, String> project = (Map<String, String>)projects.next();
-				sql.append('(').append("'").append(project.get("id")).append("'").append(COMMA).append("'").append(project.get("name")).append("'").append(COMMA).append("'").append(project.get("description")).append("'").append(COMMA).append("'").append(project.get("projectTag")).append("'").append(COMMA).append("'").append(project.get("organizationId")).append("'").append(')');
+				ProjectDO project = (ProjectDO) projects.next();
+				sql.append('(').append("'").append(project.getId()).append("'").append(COMMA).append("'").append(project.getName()).append("'").append(COMMA).append("'").append(project.getDescription()).append("'").append(COMMA).append("'").append(project.getProjectTag()).append("'").append(COMMA).append("'").append(project.getOrganizationId()).append("'").append(')');
 				if (projects.hasNext()) sql.append(COMMA);
 			}
 			return sql.toString();
 		}
 	}
-
-	@Delete("DELETE FROM project WHERE organization_id = #{organizationId}")
-	void deleteProjects(String organizationId);
 }

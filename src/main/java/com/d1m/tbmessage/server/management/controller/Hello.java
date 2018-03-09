@@ -1,7 +1,7 @@
 package com.d1m.tbmessage.server.management.controller;
 
 import com.d1m.tbmessage.server.database.dao.MessgeDAO;
-import com.d1m.tbmessage.server.database.entity.MsgDO;
+import com.d1m.tbmessage.server.database.entity.MessageDO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,7 +16,7 @@ public class Hello {
 	MessgeDAO messgeDAO;
 
 	@RequestMapping("test")
-	public List<MsgDO> test(){
+	public List<MessageDO> test(){
 		return messgeDAO.findAll();
 	}
 }

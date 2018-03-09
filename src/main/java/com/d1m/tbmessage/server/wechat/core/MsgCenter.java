@@ -99,7 +99,7 @@ public class MsgCenter {
 			msg.put("Type", MsgTypeEnum.VOICE.getType());
 		} else if (msg.getInteger("MsgType").equals(MsgCodeEnum.MSGTYPE_VERIFYMSG.getCode())) {// friends
 			// 好友确认消息
-			// MessageTools.addFriend(constant, userName, 3, ticket); // 确认添加好友
+			// MessageTools.addFriend(config, userName, 3, ticket); // 确认添加好友
 			msg.put("Type", MsgTypeEnum.VERIFYMSG.getType());
 
 		} else if (msg.getInteger("MsgType").equals(MsgCodeEnum.MSGTYPE_SHARECARD.getCode())) { // 共享名片
