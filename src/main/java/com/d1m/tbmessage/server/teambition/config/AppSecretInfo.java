@@ -1,32 +1,42 @@
 package com.d1m.tbmessage.server.teambition.config;
 
-public class ConnectionInfo {
+import com.d1m.tbmessage.common.annotation.Name;
 
-	public static ConnectionInfo instance;
+public class AppSecretInfo {
+
+	private static AppSecretInfo instance;
 
 	/** x_api_key for teambition api */
+	@Name("x_api_key")
 	private String apiKey;
 
 	/** access_token for teambition api */
+	@Name("access_token")
 	private String accessToken;
 
 	/** code for teambition access_token api */
+	@Name("code")
 	private String code;
 
 	/** teambition app client_id */
+	@Name("client_id")
 	private String clientId;
 
 	/** teambition app client_secret */
+	@Name("clint_secret")
 	private String clientSecret;
 
-	public static ConnectionInfo getInstance() {
+	/** teambition organization_id */
+	private String organizationId;
+
+	public static AppSecretInfo getInstance() {
 		if (instance == null) {
-			instance = new ConnectionInfo();
+			instance = new AppSecretInfo();
 		}
 		return instance;
 	}
 
-	private ConnectionInfo(){
+	private AppSecretInfo(){
 
 	}
 
@@ -68,5 +78,13 @@ public class ConnectionInfo {
 
 	public void setClientSecret(String clientSecret) {
 		this.clientSecret = clientSecret;
+	}
+
+	public String getOrganizationId() {
+		return organizationId;
+	}
+
+	public void setOrganizationId(String organizationId) {
+		this.organizationId = organizationId;
 	}
 }

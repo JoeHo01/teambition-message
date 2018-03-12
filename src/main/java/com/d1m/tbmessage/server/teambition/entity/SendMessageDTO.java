@@ -1,7 +1,6 @@
 package com.d1m.tbmessage.server.teambition.entity;
 
-import org.apache.commons.collections.CollectionUtils;
-
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
@@ -9,15 +8,33 @@ public class SendMessageDTO {
 
 	private String organizationId;
 
+	private List<String> projects;
+
 	private List<String> users;
 
 	private List<String> groups;
 
-	private List<String> projects;
-
 	private String messageType;
 
 	private String text;
+
+	public SendMessageDTO() {
+		this.users = new ArrayList<>();
+		this.groups = new ArrayList<>();
+		this.projects = new ArrayList<>();
+	}
+
+	public void addUser(String user) {
+		this.users.add(user);
+	}
+
+	public void addGroup(String group){
+		this.groups.add(group);
+	}
+
+	public void addProject(String project) {
+		this.projects.add(project);
+	}
 
 	public String getOrganizationId() {
 		return organizationId;
@@ -25,6 +42,14 @@ public class SendMessageDTO {
 
 	public void setOrganizationId(String organizationId) {
 		this.organizationId = organizationId;
+	}
+
+	public List<String> getProjects() {
+		return projects;
+	}
+
+	public void setProjects(List<String> projects) {
+		this.projects = projects;
 	}
 
 	public List<String> getUsers() {
@@ -41,14 +66,6 @@ public class SendMessageDTO {
 
 	public void setGroups(List<String> groups) {
 		this.groups = groups;
-	}
-
-	public List<String> getProjects() {
-		return projects;
-	}
-
-	public void setProjects(List<String> projects) {
-		this.projects = projects;
 	}
 
 	public String getMessageType() {
@@ -70,22 +87,25 @@ public class SendMessageDTO {
 	public String toString() {
 		return "{"
 				+ "\"_organizationId\":\"" + organizationId + "\","
-				+ "\"users\":[\""+ getString(users) +"\"],"
-				+ "\"groups\":[\""+ getString(groups) +"\"],"
-				+ "\"projects\":[\""+ getString(projects) +"\"],"
+				+ "\"projects\":["+ getString(projects) +"],"
+				+ "\"users\":["+ getString(users) +"],"
+				+ "\"groups\":["+ getString(groups) +"],"
 				+ "\"messageType\":\""+ messageType +"\","
 				+ "\"text\":\"" + text
 				+ "\"}";
 	}
 
 	private String getString(List<String> list){
-		if (CollectionUtils.isEmpty(list)) return "";
-		Iterator<String> iterator = list.iterator();
-		StringBuilder result = new StringBuilder();
-		while (iterator.hasNext()){
-			result.append("\"").append(iterator.hasNext()).append("\"");
-			if (iterator.hasNext()) result.append(",");
+		if (!list.isEmpty()){
+			Iterator<String> iterator = list.iterator();
+			StringBuilder result = new StringBuilder();
+			while (iterator.hasNext()){
+				result.append("\"").append(iterator.next()).append("\"");
+				if (iterator.hasNext()) result.append(",");
+			}
+			return result.toString();
+		}else {
+			return "";
 		}
-		return result.toString();
 	}
 }

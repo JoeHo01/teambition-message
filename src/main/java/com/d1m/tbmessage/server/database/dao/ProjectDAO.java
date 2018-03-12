@@ -3,6 +3,7 @@ package com.d1m.tbmessage.server.database.dao;
 import com.d1m.tbmessage.server.database.entity.ProjectDO;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.InsertProvider;
+import org.apache.ibatis.annotations.Select;
 import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
@@ -19,6 +20,12 @@ public interface ProjectDAO {
 
 	@Delete("DELETE FROM project WHERE organization_id = #{organizationId}")
 	void deleteProjects(String organizationId);
+
+	@Select("SELECT id,name,description,project_tag,organization_id FROM project")
+	List<ProjectDO> getAll();
+
+	@Select("SELECT id FROM project WHERE name = #{name}")
+	String getIdByName(String name);
 
 	class ProjectProvider{
 		public String addProjects(Map<String, ArrayList> map) {

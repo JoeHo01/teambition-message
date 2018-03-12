@@ -31,7 +31,7 @@ public enum MsgCodeEnum {
 	
 	;
 
-	private int code;
+	public int code;
 	private String type;
 
 	MsgCodeEnum(int code, String type) {
@@ -40,11 +40,11 @@ public enum MsgCodeEnum {
 	}
 
 	public int getCode() {
-		return code;
+		return this.code;
 	}
 
 	public String getType() {
-		return type;
+		return this.type;
 	}
 
 }

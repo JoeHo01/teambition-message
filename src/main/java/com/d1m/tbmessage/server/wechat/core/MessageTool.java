@@ -35,7 +35,7 @@ public class MessageTool {
 		Matcher matcher = pattern.matcher(text);
 		return matcher;
 	}
-
+	
 	/**
 	 * xml解析器
 	 * 

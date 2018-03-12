@@ -6,7 +6,9 @@ import com.d1m.tbmessage.common.HttpService;
 import com.d1m.tbmessage.common.HttpUtil;
 import com.d1m.tbmessage.server.database.dao.ProjectDAO;
 import com.d1m.tbmessage.server.database.entity.ProjectDO;
+import com.d1m.tbmessage.server.teambition.config.AppSecretInfo;
 import com.d1m.tbmessage.server.teambition.config.TeambitionURL;
+import com.d1m.tbmessage.server.teambition.entity.ProjectTagDTO;
 import com.d1m.tbmessage.server.teambition.entity.SendMessageDTO;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.http.HttpEntity;
@@ -31,7 +33,7 @@ public class TeambitionService {
 
 	private static Logger LOG = LoggerFactory.getLogger(TeambitionService.class);
 
-	private static final String X_API_KEY = "e84d537d25fc3a0978bd0c76b732b366";
+	private static AppSecretInfo appSecretInfo = AppSecretInfo.getInstance();
 
 	@Autowired
 	public TeambitionService(ProjectDAO projectDAO) {
@@ -40,17 +42,12 @@ public class TeambitionService {
 
 	public void sendMessage(SendMessageDTO sendMessageDTO){
 
-//		if (groupName == null){
-//			groupName = "私信";
-//		}
-//
-//		String text = "来自: " + groupName + "#" + memberName + " :" + message;
-
 		Map<String, String> headers = new HashMap<>();
-		headers.put(HttpUtil.X_API_KEY, X_API_KEY);
+		headers.put(HttpUtil.X_API_KEY, appSecretInfo.getApiKey());
 		headers.put(HttpUtil.CONTENT_TYPE, HttpUtil.DEFAULT_RESPONSE_TYPE);
 
-		HttpEntity entity = new StringEntity(sendMessageDTO.toString(), ContentType.create("text/json", "UTF-8"));
+		HttpEntity entity = new StringEntity(sendMessageDTO.toString(), ContentType.create(HttpUtil.POST_BODY_TYPE_JSON, HttpUtil.UTF_8));
+		System.out.println(sendMessageDTO.toString());
 		try {
 			HttpService.post(headers, TeambitionURL.MESSAGE_SEND.url(), entity, null);
 		} catch (HttpException e) {
@@ -61,16 +58,16 @@ public class TeambitionService {
 	public void reloadProjects(String organizationId){
 		projectDAO.deleteProjects(organizationId);
 		String getProjectTagsURL = MessageFormatter.format(TeambitionURL.PROJECT_TAGS_GET.url(), organizationId).getMessage();
-		List<Map<String, String>> projectTags = new ArrayList<>();
+		List<ProjectTagDTO> projectTags = new ArrayList<>();
 		try {
-			HttpResponse projectTagsResponse = HttpService.get(null, getProjectTagsURL, null, ACCESS_TOKEN);
-			JSONArray projectTagDTOs = JSONArray.parseArray(EntityUtils.toString(projectTagsResponse.getEntity(), "UTF_8"));
+			HttpResponse projectTagsResponse = HttpService.get(null, getProjectTagsURL, null, appSecretInfo.getAccessToken());
+			JSONArray projectTagDTOs = JSONArray.parseArray(EntityUtils.toString(projectTagsResponse.getEntity(), HttpUtil.UTF_8));
 			if (projectTagDTOs != null) {
 				for (int i = 0; i < projectTagDTOs.size(); i++) {
 					JSONObject projectTagDTO = projectTagDTOs.getJSONObject(i);
-					Map<String, String> projectTag = new HashMap<>();
-					projectTag.put("id", projectTagDTO.getString("_id"));
-					projectTag.put("name", projectTagDTO.getString("name"));
+					ProjectTagDTO projectTag = new ProjectTagDTO();
+					projectTag.setId(projectTagDTO.getString("_id"));
+					projectTag.setName(projectTagDTO.getString("name"));
 					projectTags.add(projectTag);
 				}
 			}
@@ -79,10 +76,10 @@ public class TeambitionService {
 		}
 		List<ProjectDO> projects = new ArrayList<>();
 		if (CollectionUtils.isNotEmpty(projectTags)){
-			for (Map<String, String> projectTag : projectTags){
-				String getProjectsURL = MessageFormatter.format(TeambitionURL.PROJECTS_GET.url(), organizationId, projectTag.get("id")).getMessage();
+			for (ProjectTagDTO projectTag : projectTags){
+				String getProjectsURL = MessageFormatter.format(TeambitionURL.PROJECTS_GET.url(), organizationId, projectTag.getId()).getMessage();
 				try {
-					HttpResponse getProjectsResponse = HttpService.get(null, getProjectsURL, null, ACCESS_TOKEN);
+					HttpResponse getProjectsResponse = HttpService.get(null, getProjectsURL, null, appSecretInfo.getAccessToken());
 					JSONArray projectDTOs = JSONArray.parseArray(EntityUtils.toString(getProjectsResponse.getEntity()));
 					for (int i = 0; i < projectDTOs.size(); i++) {
 						JSONObject projectDTO = projectDTOs.getJSONObject(i);
@@ -90,7 +87,7 @@ public class TeambitionService {
 						project.setId(projectDTO.getString("_id"));
 						project.setName(projectDTO.getString("name"));
 						project.setDescription(projectDTO.getString("description"));
-						project.setProjectTag(projectTag.get("name"));
+						project.setProjectTag(projectTag.getName());
 						project.setOrganizationId(organizationId);
 						projects.add(project);
 					}

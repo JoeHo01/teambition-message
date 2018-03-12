@@ -14,10 +14,17 @@ import java.util.Random;
 import java.util.regex.Matcher;
 
 import com.d1m.tbmessage.common.HttpService;
+import com.d1m.tbmessage.common.HttpUtil;
+import com.d1m.tbmessage.server.teambition.config.AppSecretInfo;
+import com.d1m.tbmessage.server.teambition.config.Constant;
+import com.d1m.tbmessage.server.teambition.config.SendingInfo;
+import com.d1m.tbmessage.server.teambition.entity.SendMessageDTO;
+import com.d1m.tbmessage.server.teambition.service.TeambitionService;
 import com.d1m.tbmessage.server.wechat.entity.GroupDTO;
 import com.d1m.tbmessage.server.wechat.entity.MemberDTO;
 import com.d1m.tbmessage.server.wechat.core.Core;
-import com.d1m.tbmessage.server.wechat.core.MsgCenter;
+import com.d1m.tbmessage.server.wechat.core.MessageCenter;
+import com.d1m.tbmessage.server.wechat.entity.MessageDTO;
 import com.d1m.tbmessage.server.wechat.login.service.ILoginService;
 import com.d1m.tbmessage.server.wechat.constant.enums.ResultEnum;
 import com.d1m.tbmessage.server.wechat.constant.enums.RetCodeEnum;
@@ -27,12 +34,15 @@ import com.d1m.tbmessage.server.wechat.constant.enums.parameters.BaseParaEnum;
 import com.d1m.tbmessage.server.wechat.constant.enums.parameters.LoginParaEnum;
 import com.d1m.tbmessage.server.wechat.constant.enums.parameters.StatusNotifyParaEnum;
 import com.d1m.tbmessage.server.wechat.constant.enums.parameters.UUIDParaEnum;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.Document;
 
 import com.alibaba.fastjson.JSON;
@@ -50,6 +60,7 @@ import com.d1m.tbmessage.server.wechat.core.MessageTool;
  * @version 1.0
  *
  */
+@Service
 public class LoginServiceImpl implements ILoginService {
 	private static Logger LOG = LoggerFactory.getLogger(LoginServiceImpl.class);
 
@@ -59,12 +70,20 @@ public class LoginServiceImpl implements ILoginService {
 
 	private Map<String, MemberDTO> recommends = MemberDTO.getInstance();
 
-	private HttpService httpClient = core.getHttpService();
-
 	private HttpService httpService = core.getHttpService();
 
-	public LoginServiceImpl() {
+	private SendingInfo sendingInfo = SendingInfo.getInstance();
 
+	private AppSecretInfo appSecretInfo = AppSecretInfo.getInstance();
+
+	private final MessageCenter messageCenter;
+
+	private final TeambitionService teambitionService;
+
+	@Autowired
+	public LoginServiceImpl(MessageCenter messageCenter, TeambitionService teambitionService) {
+		this.messageCenter = messageCenter;
+		this.teambitionService = teambitionService;
 	}
 
 	@Override
@@ -83,7 +102,7 @@ public class LoginServiceImpl implements ILoginService {
 			long millis = System.currentTimeMillis();
 			params.add(new BasicNameValuePair(LoginParaEnum.R.para(), String.valueOf(millis / 1579L)));
 			params.add(new BasicNameValuePair(LoginParaEnum._.para(), String.valueOf(millis)));
-			HttpEntity entity = httpClient.doGet(URLEnum.LOGIN_URL.getUrl(), params, true, null);
+			HttpEntity entity = httpService.doGet(URLEnum.LOGIN_URL.getUrl(), params, true, null);
 
 			try {
 				String result = EntityUtils.toString(entity);
@@ -115,7 +134,7 @@ public class LoginServiceImpl implements ILoginService {
 		params.add(new BasicNameValuePair(UUIDParaEnum.LANG.para(), UUIDParaEnum.LANG.value()));
 		params.add(new BasicNameValuePair(UUIDParaEnum._.para(), String.valueOf(System.currentTimeMillis())));
 
-		HttpEntity entity = httpClient.doGet(URLEnum.UUID_URL.getUrl(), params, true, null);
+		HttpEntity entity = httpService.doGet(URLEnum.UUID_URL.getUrl(), params, true, null);
 
 		try {
 			String result = EntityUtils.toString(entity);
@@ -166,7 +185,7 @@ public class LoginServiceImpl implements ILoginService {
 		Map<String, Object> paramMap = core.getParamMap();
 
 		// 请求初始化接口
-		HttpEntity entity = httpClient.doPost(url, JSON.toJSONString(paramMap));
+		HttpEntity entity = httpService.doPost(url, JSON.toJSONString(paramMap));
 		try {
 			String result = EntityUtils.toString(entity, Consts.UTF_8);
 			JSONObject obj = JSON.parseObject(result);
@@ -219,7 +238,7 @@ public class LoginServiceImpl implements ILoginService {
 		String paramStr = JSON.toJSONString(paramMap);
 
 		try {
-			HttpEntity entity = httpClient.doPost(url, paramStr);
+			HttpEntity entity = httpService.doPost(url, paramStr);
 			EntityUtils.toString(entity, Consts.UTF_8);
 		} catch (Exception e) {
 			LOG.error("微信状态通知接口失败！", e);
@@ -259,7 +278,10 @@ public class LoginServiceImpl implements ILoginService {
 								case "2":
 									if (msgObj != null) {
 										try {
-											MsgCenter.produceMsg(msgObj.getJSONArray("AddMsgList"));
+											List<MessageDTO> messages = messageCenter.produceMsg(msgObj.getJSONArray("AddMsgList"));
+											for (MessageDTO message : messages){
+												if (message.isGroupMsg())sendMessage(message);
+											}
 										} catch (Exception e) {
 											LOG.info(e.getMessage());
 										}
@@ -277,7 +299,7 @@ public class LoginServiceImpl implements ILoginService {
 										try {
 											JSONArray msgList = msgObj.getJSONArray("AddMsgList");
 											JSONArray modContactList = msgObj.getJSONArray("ModContactList"); // 存在删除或者新增的好友信息
-											MsgCenter.produceMsg(msgList);
+											messageCenter.produceMsg(msgList);
 											for (int j = 0; j < msgList.size(); j++) {
 												// 存在主动加好友之后的同步联系人到本地
 												MemberDTO memberDTO = modContactList.getObject(j, MemberDTO.class);
@@ -306,7 +328,19 @@ public class LoginServiceImpl implements ILoginService {
 				}
 			}
 		}).start();
+	}
 
+	private void sendMessage(MessageDTO message) {
+		String projectId = sendingInfo.getProjectId(message.getFromUserName());
+		if (StringUtils.isEmpty(projectId))	return;
+		System.out.println("Content: " + message.getContent());
+		System.out.println("Text: " + message.getText());
+		SendMessageDTO sendMessageDTO = new SendMessageDTO();
+		sendMessageDTO.setOrganizationId(appSecretInfo.getOrganizationId());
+		sendMessageDTO.addProject(projectId);
+		sendMessageDTO.setMessageType(Constant.MESSAGE_TYPE_TEXT);
+		sendMessageDTO.setText(message.getText());
+		teambitionService.sendMessage(sendMessageDTO);
 	}
 
 	@Override
@@ -314,7 +348,7 @@ public class LoginServiceImpl implements ILoginService {
 		String url = String.format(URLEnum.WEB_WX_GET_CONTACT.getUrl(),
 				core.getLoginInfo().get(StorageLoginInfoEnum.url.getKey()));
 		Map<String, Object> paramMap = core.getParamMap();
-		HttpEntity entity = httpClient.doPost(url, JSON.toJSONString(paramMap));
+		HttpEntity entity = httpService.doPost(url, JSON.toJSONString(paramMap));
 
 		try {
 			String result = EntityUtils.toString(entity, Consts.UTF_8);
@@ -334,7 +368,7 @@ public class LoginServiceImpl implements ILoginService {
 				// 设置seq传参
 				params.add(new BasicNameValuePair("r", String.valueOf(currentTime)));
 				params.add(new BasicNameValuePair("seq", String.valueOf(seq)));
-				entity = httpClient.doGet(url, params, false, null);
+				entity = httpService.doGet(url, params, false, null);
 
 				params.remove(new BasicNameValuePair("r", String.valueOf(currentTime)));
 				params.remove(new BasicNameValuePair("seq", String.valueOf(seq)));
@@ -374,15 +408,15 @@ public class LoginServiceImpl implements ILoginService {
 				core.getLoginInfo().get(StorageLoginInfoEnum.pass_ticket.getKey()));
 		Map<String, Object> paramMap = core.getParamMap();
 		paramMap.put("Count", core.getGroupIdList().size());
-		List<Map<String, String>> list = new ArrayList<Map<String, String>>();
+		List<Map<String, String>> list = new ArrayList<>();
 		for (int i = 0; i < core.getGroupIdList().size(); i++) {
-			HashMap<String, String> map = new HashMap<String, String>();
+			HashMap<String, String> map = new HashMap<>();
 			map.put("UserName", core.getGroupIdList().get(i));
 			map.put("EncryChatRoomId", "");
 			list.add(map);
 		}
 		paramMap.put("List", list);
-		HttpEntity entity = httpClient.doPost(url, JSON.toJSONString(paramMap));
+		HttpEntity entity = httpService.doPost(url, JSON.toJSONString(paramMap));
 		try {
 			String text = EntityUtils.toString(entity, Consts.UTF_8);
 			JSONObject obj = JSON.parseObject(text);
@@ -394,6 +428,9 @@ public class LoginServiceImpl implements ILoginService {
 					for (int j = 0; j < memberList.size(); j++) {
 						MemberDTO memberDTO = memberList.getObject(j, MemberDTO.class);
 						group.getMembers().put(memberDTO.getUserName(), memberDTO);
+						if (memberDTO.getUserName().equals(core.getUserName())) {
+							sendingInfo.setId(contactList.getJSONObject(i).getString("UserName"), getProjectName(memberDTO.getDisplayName()));
+						}
 					}
 					group.setId(contactList.getJSONObject(i).getString("UserName"));
 					group.setNickName(contactList.getJSONObject(i).getString("NickName"));
@@ -403,6 +440,10 @@ public class LoginServiceImpl implements ILoginService {
 		} catch (Exception e) {
 			LOG.info(e.getMessage());
 		}
+	}
+
+	private String getProjectName(String displayName){
+		return displayName.substring(displayName.indexOf("#") + 1, displayName.length());
 	}
 
 	/**
@@ -587,8 +628,7 @@ public class LoginServiceImpl implements ILoginService {
 					sb.append(syncArray.getJSONObject(i).getString("Key")).append("_").append(syncArray.getJSONObject(i).getString("Val")).append("|");
 				}
 				String synckey = sb.toString();
-				core.getLoginInfo().put(StorageLoginInfoEnum.synckey.getKey(),
-						synckey.substring(0, synckey.length() - 1));// 1_656161336|2_656161626|3_656161313|11_656159955|13_656120033|201_1492273724|1000_1492265953|1001_1492250432|1004_1491805192
+				core.getLoginInfo().put(StorageLoginInfoEnum.synckey.getKey(), synckey.substring(0, synckey.length() - 1));
 			}
 		} catch (Exception e) {
 			LOG.info(e.getMessage());

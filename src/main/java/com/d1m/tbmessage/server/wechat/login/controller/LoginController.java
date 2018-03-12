@@ -9,6 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.d1m.tbmessage.common.SleepUtil;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 
 /**
  * 登陆控制器
@@ -18,10 +20,16 @@ import com.d1m.tbmessage.common.SleepUtil;
  * @version 1.0
  *
  */
+@Controller
 public class LoginController {
 	private Logger LOG = LoggerFactory.getLogger(LoginController.class);
-	private ILoginService loginService = new LoginServiceImpl();
+	private final ILoginService loginService;
 	private static Core core = Core.getInstance();
+
+	@Autowired
+	public LoginController(ILoginService loginService) {
+		this.loginService = loginService;
+	}
 
 	public void login() {
 		if (core.isAlive()) { // 已登陆

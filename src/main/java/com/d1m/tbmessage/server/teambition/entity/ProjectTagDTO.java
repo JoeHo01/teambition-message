@@ -1,9 +1,12 @@
 package com.d1m.tbmessage.server.teambition.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 import java.util.List;
 
 public class ProjectTagDTO {
 
+	@JsonProperty("_id")
 	private String id;
 
 	private String name;

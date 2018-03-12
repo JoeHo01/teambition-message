@@ -12,6 +12,7 @@ import org.springframework.context.ApplicationContext;
 @MapperScan("com.d1m.tbmessage.server.database.dao")
 public class Application {
 
+
     private static ApplicationContext applicationContext = null;
 
     public static void main(String[] args) {

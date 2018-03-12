@@ -8,6 +8,9 @@ public class HttpUtil {
 	/** The Constant DEFAULT_RESPONSE_TYPE. */
 	public static final String DEFAULT_RESPONSE_TYPE = "application/json;charset=UTF-8";
 
+	/** The Constant POST_BODY_TYPE_JSON. */
+	public static final String POST_BODY_TYPE_JSON = "text/json";
+
 	/** The Constant UTF_8. */
 	public static final String UTF_8 = "UTF-8";
 

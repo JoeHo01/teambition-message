@@ -48,6 +48,7 @@ public class MessageDTO implements Serializable {
 	private String statusNotifyUserName;
 	/** 消息发送者ID **/
 	private String fromUserName;
+	private String fromMemberName;
 	private String oriContent;
 	private String fileSize;
 
@@ -273,6 +274,14 @@ public class MessageDTO implements Serializable {
 
 	public void setFromUserName(String fromUserName) {
 		this.fromUserName = fromUserName;
+	}
+
+	public String getFromMemberName() {
+		return fromMemberName;
+	}
+
+	public void setFromMemberName(String fromMemberName) {
+		this.fromMemberName = fromMemberName;
 	}
 
 	public String getOriContent() {
