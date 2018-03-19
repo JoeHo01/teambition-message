@@ -85,14 +85,22 @@ public class SendMessageDTO {
 	}
 
 	public String toString() {
-		return "{"
-				+ "\"_organizationId\":\"" + organizationId + "\","
-				+ "\"projects\":["+ getString(projects) +"],"
-				+ "\"users\":["+ getString(users) +"],"
-				+ "\"groups\":["+ getString(groups) +"],"
-				+ "\"messageType\":\""+ messageType +"\","
-				+ "\"text\":\"" + text
-				+ "\"}";
+		StringBuilder result = new StringBuilder();
+		result.append("{");
+		if (!projects.isEmpty()) {
+			result.append("\"projects\":[").append(getString(projects)).append("],");
+		}
+		if (!users.isEmpty()) {
+			result.append("\"users\":[").append(getString(users)).append("],");
+		}
+		if (!groups.isEmpty()) {
+			result.append("\"groups\":[").append(getString(groups)).append("],");
+		}
+		result.append("\"_organizationId\":\"").append(organizationId).append("\",");
+		result.append("\"_messageType\":\"").append(messageType).append("\",");
+		result.append("\"text\":\"").append(text);
+		result.append("\"}");
+		return result.toString();
 	}
 
 	private String getString(List<String> list){

@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AppService {
@@ -43,23 +43,20 @@ public class AppService {
 	public void getAppSecretInfo(){
 		// get app secret information from DB
 		List<AppSecretDO> appSecrets = appSecretDAO.getAppSecret();
+		Map<String, String> appSecretsName = AnnotationUtil.getNamedField(AppSecretInfo.class);
+
 		// foreach app secrets
 		for (AppSecretDO appSecret : appSecrets) {
-			// get field by reflex
-			for (Field field : appSecretInfo.getClass().getDeclaredFields()) {
-				if (appSecret.getKey().equals(AnnotationUtil.getName(field))) {
-					try {
-						// set value
-						appSecretInfo.getClass().getMethod("set" + WordsUtil.upperFirstCase(field.getName()), String.class).invoke(appSecretInfo, appSecret.getValue());
-					} catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-						LOG.error(e.getMessage(), e);
-					}
-				}
+			try {
+				// set value
+				AppSecretInfo.class.getMethod("set" + WordsUtil.upperFirstCase(appSecretsName.get(appSecret.getKey())), String.class).invoke(appSecretInfo, appSecret.getValue());
+			} catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+				LOG.error(e.getMessage(), e);
 			}
 		}
 	}
 
-	public String getOrganizationId(String name){
+	public String getOrganizationId(String name) {
 		return organizationDAO.getIdByName(name);
 	}
 

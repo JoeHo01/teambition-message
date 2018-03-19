@@ -23,7 +23,7 @@ public class AppSecretInfo {
 	private String clientId;
 
 	/** teambition app client_secret */
-	@Name("clint_secret")
+	@Name("client_secret")
 	private String clientSecret;
 
 	/** teambition organization_id */

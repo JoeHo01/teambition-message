@@ -28,23 +28,23 @@ public class WechatTools {
 
 	private static Core core = Core.getInstance();
 
-	public static boolean webWxLogout() {
-		String url = String.format(URLEnum.WEB_WX_LOGOUT.getUrl(),
-				core.getLoginInfo().get(StorageLoginInfoEnum.url.getKey()));
-		List<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
-		params.add(new BasicNameValuePair("redirect", "1"));
-		params.add(new BasicNameValuePair("type", "1"));
-		params.add(
-				new BasicNameValuePair("skey", (String) core.getLoginInfo().get(StorageLoginInfoEnum.skey.getKey())));
-		try {
-			HttpEntity entity = core.getHttpService().doGet(url, params, false, null);
-			String text = EntityUtils.toString(entity, Consts.UTF_8); // 无消息
-			return true;
-		} catch (Exception e) {
-			LOG.debug(e.getMessage());
-		}
-		return false;
-	}
+//	public static boolean webWxLogout() {
+//		String url = String.format(URLEnum.WEB_WX_LOGOUT.getUrl(),
+//				core.getLoginInfo().get(StorageLoginInfoEnum.url.getKey()));
+//		List<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
+//		params.add(new BasicNameValuePair("redirect", "1"));
+//		params.add(new BasicNameValuePair("type", "1"));
+//		params.add(
+//				new BasicNameValuePair("skey", (String) core.getLoginInfo().get(StorageLoginInfoEnum.skey.getKey())));
+//		try {
+//			HttpEntity entity = core.getHttpService().doGet(url, params, false, null);
+//			String text = EntityUtils.toString(entity, Consts.UTF_8); // 无消息
+//			return true;
+//		} catch (Exception e) {
+//			LOG.debug(e.getMessage());
+//		}
+//		return false;
+//	}
 
 	public static void setUserInfo() {
 		for (JSONObject o : core.getContactList()) {

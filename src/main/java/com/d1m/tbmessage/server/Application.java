@@ -1,6 +1,5 @@
 package com.d1m.tbmessage.server;
 
-import com.d1m.tbmessage.server.wechat.Wechat;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -12,12 +11,11 @@ import org.springframework.context.ApplicationContext;
 @MapperScan("com.d1m.tbmessage.server.database.dao")
 public class Application {
 
-
     private static ApplicationContext applicationContext = null;
 
     public static void main(String[] args) {
         applicationContext = SpringApplication.run(Application.class);
-        Wechat.start();
+        App.start();
     }
 
     //get applicationContext

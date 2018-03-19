@@ -5,6 +5,7 @@ public enum TeambitionURL {
 	MESSAGE_SEND(BASE.url + "/appstore/api/developer/chats/message", "Send message"),
 	PROJECT_TAGS_GET(BASE.url + "/api/organizations/{}/projecttags", "Get ProjectTags bellowed to the Company"),
 	PROJECTS_GET(BASE.url + "/api/organizations/{}/projecttags/{}/projects", "Get Projects bellowed to the Company by tag"),
+	ACCESS_TOKEN_GET(" https://account.teambition.com/api/oauth2/access_token", "Get APP access token")
 	;
 
 	private String url;

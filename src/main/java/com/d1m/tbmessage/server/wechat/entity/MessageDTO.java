@@ -48,9 +48,9 @@ public class MessageDTO implements Serializable {
 	private String statusNotifyUserName;
 	/** 消息发送者ID **/
 	private String fromUserName;
-	private String fromMemberName;
 	private String oriContent;
 	private String fileSize;
+	private String fromNickName;
 
 	public int getSubMsgType() {
 		return subMsgType;
@@ -276,12 +276,12 @@ public class MessageDTO implements Serializable {
 		this.fromUserName = fromUserName;
 	}
 
-	public String getFromMemberName() {
-		return fromMemberName;
+	public String getFromNickName() {
+		return fromNickName;
 	}
 
-	public void setFromMemberName(String fromMemberName) {
-		this.fromMemberName = fromMemberName;
+	public void setFromNickName(String fromNickName) {
+		this.fromNickName = fromNickName;
 	}
 
 	public String getOriContent() {

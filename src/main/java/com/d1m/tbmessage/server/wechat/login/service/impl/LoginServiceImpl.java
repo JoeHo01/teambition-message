@@ -13,8 +13,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.regex.Matcher;
 
-import com.d1m.tbmessage.common.HttpService;
-import com.d1m.tbmessage.common.HttpUtil;
+import com.d1m.tbmessage.server.wechat.login.service.WechatHttpService;
 import com.d1m.tbmessage.server.teambition.config.AppSecretInfo;
 import com.d1m.tbmessage.server.teambition.config.Constant;
 import com.d1m.tbmessage.server.teambition.config.SendingInfo;
@@ -70,7 +69,7 @@ public class LoginServiceImpl implements ILoginService {
 
 	private Map<String, MemberDTO> recommends = MemberDTO.getInstance();
 
-	private HttpService httpService = core.getHttpService();
+	private final WechatHttpService wechatHttpService;
 
 	private SendingInfo sendingInfo = SendingInfo.getInstance();
 
@@ -81,9 +80,10 @@ public class LoginServiceImpl implements ILoginService {
 	private final TeambitionService teambitionService;
 
 	@Autowired
-	public LoginServiceImpl(MessageCenter messageCenter, TeambitionService teambitionService) {
+	public LoginServiceImpl(MessageCenter messageCenter, TeambitionService teambitionService, WechatHttpService wechatHttpService) {
 		this.messageCenter = messageCenter;
 		this.teambitionService = teambitionService;
+		this.wechatHttpService = wechatHttpService;
 	}
 
 	@Override
@@ -102,7 +102,7 @@ public class LoginServiceImpl implements ILoginService {
 			long millis = System.currentTimeMillis();
 			params.add(new BasicNameValuePair(LoginParaEnum.R.para(), String.valueOf(millis / 1579L)));
 			params.add(new BasicNameValuePair(LoginParaEnum._.para(), String.valueOf(millis)));
-			HttpEntity entity = httpService.doGet(URLEnum.LOGIN_URL.getUrl(), params, true, null);
+			HttpEntity entity = wechatHttpService.doGet(URLEnum.LOGIN_URL.getUrl(), params, true, null);
 
 			try {
 				String result = EntityUtils.toString(entity);
@@ -134,7 +134,7 @@ public class LoginServiceImpl implements ILoginService {
 		params.add(new BasicNameValuePair(UUIDParaEnum.LANG.para(), UUIDParaEnum.LANG.value()));
 		params.add(new BasicNameValuePair(UUIDParaEnum._.para(), String.valueOf(System.currentTimeMillis())));
 
-		HttpEntity entity = httpService.doGet(URLEnum.UUID_URL.getUrl(), params, true, null);
+		HttpEntity entity = wechatHttpService.doGet(URLEnum.UUID_URL.getUrl(), params, true, null);
 
 		try {
 			String result = EntityUtils.toString(entity);
@@ -156,7 +156,7 @@ public class LoginServiceImpl implements ILoginService {
 	public boolean getQR(String qrPath) {
 		qrPath = qrPath + File.separator + "QR.jpg";
 		String qrUrl = URLEnum.QRCODE_URL.getUrl() + core.getUuid();
-		HttpEntity entity = httpService.doGet(qrUrl, null, true, null);
+		HttpEntity entity = wechatHttpService.doGet(qrUrl, null, true, null);
 		try {
 			OutputStream out = new FileOutputStream(qrPath);
 			byte[] bytes = EntityUtils.toByteArray(entity);
@@ -185,7 +185,7 @@ public class LoginServiceImpl implements ILoginService {
 		Map<String, Object> paramMap = core.getParamMap();
 
 		// 请求初始化接口
-		HttpEntity entity = httpService.doPost(url, JSON.toJSONString(paramMap));
+		HttpEntity entity = wechatHttpService.doPost(url, JSON.toJSONString(paramMap));
 		try {
 			String result = EntityUtils.toString(entity, Consts.UTF_8);
 			JSONObject obj = JSON.parseObject(result);
@@ -238,7 +238,7 @@ public class LoginServiceImpl implements ILoginService {
 		String paramStr = JSON.toJSONString(paramMap);
 
 		try {
-			HttpEntity entity = httpService.doPost(url, paramStr);
+			HttpEntity entity = wechatHttpService.doPost(url, paramStr);
 			EntityUtils.toString(entity, Consts.UTF_8);
 		} catch (Exception e) {
 			LOG.error("微信状态通知接口失败！", e);
@@ -333,13 +333,11 @@ public class LoginServiceImpl implements ILoginService {
 	private void sendMessage(MessageDTO message) {
 		String projectId = sendingInfo.getProjectId(message.getFromUserName());
 		if (StringUtils.isEmpty(projectId))	return;
-		System.out.println("Content: " + message.getContent());
-		System.out.println("Text: " + message.getText());
 		SendMessageDTO sendMessageDTO = new SendMessageDTO();
 		sendMessageDTO.setOrganizationId(appSecretInfo.getOrganizationId());
 		sendMessageDTO.addProject(projectId);
 		sendMessageDTO.setMessageType(Constant.MESSAGE_TYPE_TEXT);
-		sendMessageDTO.setText(message.getText());
+		sendMessageDTO.setText(message.getFromNickName() + ": " + message.getText());
 		teambitionService.sendMessage(sendMessageDTO);
 	}
 
@@ -348,7 +346,7 @@ public class LoginServiceImpl implements ILoginService {
 		String url = String.format(URLEnum.WEB_WX_GET_CONTACT.getUrl(),
 				core.getLoginInfo().get(StorageLoginInfoEnum.url.getKey()));
 		Map<String, Object> paramMap = core.getParamMap();
-		HttpEntity entity = httpService.doPost(url, JSON.toJSONString(paramMap));
+		HttpEntity entity = wechatHttpService.doPost(url, JSON.toJSONString(paramMap));
 
 		try {
 			String result = EntityUtils.toString(entity, Consts.UTF_8);
@@ -368,7 +366,7 @@ public class LoginServiceImpl implements ILoginService {
 				// 设置seq传参
 				params.add(new BasicNameValuePair("r", String.valueOf(currentTime)));
 				params.add(new BasicNameValuePair("seq", String.valueOf(seq)));
-				entity = httpService.doGet(url, params, false, null);
+				entity = wechatHttpService.doGet(url, params, false, null);
 
 				params.remove(new BasicNameValuePair("r", String.valueOf(currentTime)));
 				params.remove(new BasicNameValuePair("seq", String.valueOf(seq)));
@@ -416,7 +414,7 @@ public class LoginServiceImpl implements ILoginService {
 			list.add(map);
 		}
 		paramMap.put("List", list);
-		HttpEntity entity = httpService.doPost(url, JSON.toJSONString(paramMap));
+		HttpEntity entity = wechatHttpService.doPost(url, JSON.toJSONString(paramMap));
 		try {
 			String text = EntityUtils.toString(entity, Consts.UTF_8);
 			JSONObject obj = JSON.parseObject(text);
@@ -500,7 +498,7 @@ public class LoginServiceImpl implements ILoginService {
 			String text = "";
 
 			try {
-				HttpEntity entity = httpService.doGet(originalUrl, null, false, null);
+				HttpEntity entity = wechatHttpService.doGet(originalUrl, null, false, null);
 				text = EntityUtils.toString(entity);
 			} catch (Exception e) {
 				LOG.info(e.getMessage());
@@ -614,7 +612,7 @@ public class LoginServiceImpl implements ILoginService {
 		paramMap.put("rr", -new Date().getTime() / 1000);
 		String paramStr = JSON.toJSONString(paramMap);
 		try {
-			HttpEntity entity = httpService.doPost(url, paramStr);
+			HttpEntity entity = wechatHttpService.doPost(url, paramStr);
 			String text = EntityUtils.toString(entity, Consts.UTF_8);
 			JSONObject obj = JSON.parseObject(text);
 			if (obj.getJSONObject("BaseResponse").getInteger("Ret") != 0) {
@@ -659,7 +657,7 @@ public class LoginServiceImpl implements ILoginService {
 		params.add(new BasicNameValuePair("_", String.valueOf(new Date().getTime())));
 		SleepUtil.sleep(7);
 		try {
-			HttpEntity entity = httpService.doGet(url, params, true, null);
+			HttpEntity entity = wechatHttpService.doGet(url, params, true, null);
 			if (entity == null) {
 				resultMap.put("retcode", "9999");
 				resultMap.put("selector", "9999");

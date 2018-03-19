@@ -54,13 +54,10 @@ public class MessageCenter {
 				String groupName = groups.get(msg.getString("FromUserName")).getNickName();
 				String memberName = groups.get(msg.getString("FromUserName")).getMembers().get(msg.getString("FromMemberName")).getNickName();
 
-				LOG.info("收到消息一条，来自: " + groupName);
-				LOG.info(memberName);
+				LOG.info("消息--" + groupName + "#" + memberName + ": " + msg.getString("Content"));
 			}else {
-				LOG.info("收到消息一条，来自: " + recommends.get(msg.getString("FromUserName")).getNickName());
+				LOG.info("消息--" + recommends.get(msg.getString("FromUserName")).getNickName() + msg.getString("Content"));
 			}
-			LOG.info(msg.getString("Content"));
-
 			result.add(msgList.getObject(i, MessageDTO.class));
 		}
 		return result;
@@ -76,6 +73,9 @@ public class MessageCenter {
 				msg.put("Content", content.substring(content.indexOf("<br/>") + 5));
 				msg.put("groupMsg", true);
 			}
+			String groupName = groups.get(msg.getString("FromUserName")).getNickName();
+			String memberName = groups.get(msg.getString("FromUserName")).getMembers().get(msg.getString("FromMemberName")).getNickName();
+			msg.put("FromNickName", groupName + "#" + memberName);
 		} else {
 			MessageTool.msgFormatter(msg, "Content");
 		}

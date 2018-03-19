@@ -2,7 +2,6 @@ package com.d1m.tbmessage.server.teambition.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.d1m.tbmessage.common.HttpService;
 import com.d1m.tbmessage.common.HttpUtil;
 import com.d1m.tbmessage.server.database.dao.ProjectDAO;
 import com.d1m.tbmessage.server.database.entity.ProjectDO;
@@ -31,13 +30,16 @@ public class TeambitionService {
 
 	private final ProjectDAO projectDAO;
 
+	private final TeambitionHttpService teambitionHttpService;
+
 	private static Logger LOG = LoggerFactory.getLogger(TeambitionService.class);
 
 	private static AppSecretInfo appSecretInfo = AppSecretInfo.getInstance();
 
 	@Autowired
-	public TeambitionService(ProjectDAO projectDAO) {
+	public TeambitionService(ProjectDAO projectDAO, TeambitionHttpService teambitionHttpService) {
 		this.projectDAO = projectDAO;
+		this.teambitionHttpService = teambitionHttpService;
 	}
 
 	public void sendMessage(SendMessageDTO sendMessageDTO){
@@ -49,7 +51,7 @@ public class TeambitionService {
 		HttpEntity entity = new StringEntity(sendMessageDTO.toString(), ContentType.create(HttpUtil.POST_BODY_TYPE_JSON, HttpUtil.UTF_8));
 		System.out.println(sendMessageDTO.toString());
 		try {
-			HttpService.post(headers, TeambitionURL.MESSAGE_SEND.url(), entity, null);
+			teambitionHttpService.post(headers, TeambitionURL.MESSAGE_SEND.url(), entity, null);
 		} catch (HttpException e) {
 			LOG.error(e.getMessage(), e);
 		}
@@ -60,7 +62,7 @@ public class TeambitionService {
 		String getProjectTagsURL = MessageFormatter.format(TeambitionURL.PROJECT_TAGS_GET.url(), organizationId).getMessage();
 		List<ProjectTagDTO> projectTags = new ArrayList<>();
 		try {
-			HttpResponse projectTagsResponse = HttpService.get(null, getProjectTagsURL, null, appSecretInfo.getAccessToken());
+			HttpResponse projectTagsResponse = teambitionHttpService.get(null, getProjectTagsURL, null, appSecretInfo.getAccessToken());
 			JSONArray projectTagDTOs = JSONArray.parseArray(EntityUtils.toString(projectTagsResponse.getEntity(), HttpUtil.UTF_8));
 			if (projectTagDTOs != null) {
 				for (int i = 0; i < projectTagDTOs.size(); i++) {
@@ -79,7 +81,7 @@ public class TeambitionService {
 			for (ProjectTagDTO projectTag : projectTags){
 				String getProjectsURL = MessageFormatter.format(TeambitionURL.PROJECTS_GET.url(), organizationId, projectTag.getId()).getMessage();
 				try {
-					HttpResponse getProjectsResponse = HttpService.get(null, getProjectsURL, null, appSecretInfo.getAccessToken());
+					HttpResponse getProjectsResponse = teambitionHttpService.get(null, getProjectsURL, null, appSecretInfo.getAccessToken());
 					JSONArray projectDTOs = JSONArray.parseArray(EntityUtils.toString(getProjectsResponse.getEntity()));
 					for (int i = 0; i < projectDTOs.size(); i++) {
 						JSONObject projectDTO = projectDTOs.getJSONObject(i);
@@ -97,5 +99,19 @@ public class TeambitionService {
 			}
 		}
 		if (CollectionUtils.isNotEmpty(projects)) projectDAO.addProjects(projects);
+	}
+
+	public void resetAccessToken() {
+		String payload = "{" +
+				"\"client_id\":\"" + appSecretInfo.getClientId() + "\"," +
+				"\"client_secret\":\"" + appSecretInfo.getClientSecret() + "\"," +
+				"\"code\":\"" + appSecretInfo.getCode() + "\"" +
+				"}";
+		HttpEntity entity = new StringEntity(payload, ContentType.create(HttpUtil.POST_BODY_TYPE_JSON, HttpUtil.UTF_8));
+		try {
+			HttpResponse response = teambitionHttpService.post(null, TeambitionURL.ACCESS_TOKEN_GET.url(), entity, null);
+		} catch (HttpException e) {
+			LOG.error(e.getMessage(), e);
+		}
 	}
 }

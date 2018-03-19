@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
-import com.d1m.tbmessage.common.HttpService;
 import com.d1m.tbmessage.server.wechat.entity.MessageDTO;
 import com.d1m.tbmessage.server.wechat.constant.enums.parameters.BaseParaEnum;
 
@@ -52,7 +51,6 @@ public class Core {
 	private List<JSONObject> contactList = new ArrayList<>();
 
 	private Map<String, Object> loginInfo = new HashMap<String, Object>();
-	private HttpService httpService = HttpService.getInstance();
 	private String uuid = null;
 
 	private boolean useHotReload = false;
@@ -137,20 +135,12 @@ public class Core {
 		this.receivingRetryCount = receivingRetryCount;
 	}
 
-	public HttpService getHttpService() {
-		return httpService;
-	}
-
 	public List<MessageDTO> getMsgList() {
 		return msgList;
 	}
 
 	public void setMsgList(List<MessageDTO> msgList) {
 		this.msgList = msgList;
-	}
-
-	public void setHttpService(HttpService httpService) {
-		this.httpService = httpService;
 	}
 
 	public String getUserName() {
