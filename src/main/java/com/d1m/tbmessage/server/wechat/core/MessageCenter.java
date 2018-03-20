@@ -10,6 +10,7 @@ import com.d1m.tbmessage.server.wechat.entity.GroupDTO;
 import com.d1m.tbmessage.server.wechat.entity.MemberDTO;
 import com.d1m.tbmessage.server.wechat.constant.enums.MsgTypeEnum;
 import com.d1m.tbmessage.server.wechat.entity.MessageDTO;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,15 +50,8 @@ public class MessageCenter {
 			processMsg(msg);
 
 			// develop test log
-			if (msg.getBoolean("groupMsg")){
+			LOG.info(msg.getString("FromNickName") + " : " + msg.getString("Content"));
 
-				String groupName = groups.get(msg.getString("FromUserName")).getNickName();
-				String memberName = groups.get(msg.getString("FromUserName")).getMembers().get(msg.getString("FromMemberName")).getNickName();
-
-				LOG.info("消息--" + groupName + "#" + memberName + ": " + msg.getString("Content"));
-			}else {
-				LOG.info("消息--" + recommends.get(msg.getString("FromUserName")).getNickName() + msg.getString("Content"));
-			}
 			result.add(msgList.getObject(i, MessageDTO.class));
 		}
 		return result;
@@ -73,11 +67,15 @@ public class MessageCenter {
 				msg.put("Content", content.substring(content.indexOf("<br/>") + 5));
 				msg.put("groupMsg", true);
 			}
-			String groupName = groups.get(msg.getString("FromUserName")).getNickName();
-			String memberName = groups.get(msg.getString("FromUserName")).getMembers().get(msg.getString("FromMemberName")).getNickName();
+
+			GroupDTO group = groups.get(msg.getString("FromUserName"));
+			MemberDTO member = group.getMembers().get(msg.getString("FromMemberName"));
+			String groupName = group.getNickName();
+			String memberName = StringUtils.isEmpty(member.getDisplayName()) ? member.getNickName() : member.getDisplayName();
 			msg.put("FromNickName", groupName + "#" + memberName);
 		} else {
 			MessageTool.msgFormatter(msg, "Content");
+			msg.put("FromNickName", recommends.get(msg.getString("FromUserName")).getNickName());
 		}
 
 		if (msg.getInteger("MsgType").equals(MSGTYPE_TEXT.getCode())) { // words
@@ -101,13 +99,14 @@ public class MessageCenter {
 		} else if (msg.getInteger("MsgType").equals(MSGTYPE_IMAGE.getCode())
 				|| msg.getInteger("MsgType").equals(MSGTYPE_EMOTICON.getCode())) { // 图片消息
 			msg.put("Type", MsgTypeEnum.PIC.getType());
+			msg.put("Text", "(图片消息)");
 		} else if (msg.getInteger("MsgType").equals(MSGTYPE_VOICE.getCode())) { // 语音消息
 			msg.put("Type", MsgTypeEnum.VOICE.getType());
+			msg.put("Text", "(语音消息)");
 		} else if (msg.getInteger("MsgType").equals(MSGTYPE_VERIFYMSG.getCode())) {// friends
 			// 好友确认消息
 			// MessageTools.addFriend(config, userName, 3, ticket); // 确认添加好友
 			msg.put("Type", MsgTypeEnum.VERIFYMSG.getType());
-
 		} else if (msg.getInteger("MsgType").equals(MSGTYPE_SHARECARD.getCode())) { // 共享名片
 			msg.put("Type", MsgTypeEnum.NAMECARD.getType());
 
@@ -123,7 +122,7 @@ public class MessageCenter {
 		} else if (msg.getInteger("MsgType").equals(MSGTYPE_SYS.getCode())) {// 系统消息
 			msg.put("Type", MsgTypeEnum.SYS.getType());
 		} else if (msg.getInteger("MsgType").equals(MSGTYPE_RECALLED.getCode())) { // 撤回消息
-
+			msg.put("Text", "撤回了一条消息");
 		} else {
 			LOG.info("Useless msg");
 		}

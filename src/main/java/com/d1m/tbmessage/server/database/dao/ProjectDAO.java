@@ -1,6 +1,7 @@
 package com.d1m.tbmessage.server.database.dao;
 
 import com.d1m.tbmessage.server.database.entity.ProjectDO;
+import com.d1m.tbmessage.server.database.util.SqlUtil;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.InsertProvider;
 import org.apache.ibatis.annotations.Select;
@@ -13,8 +14,6 @@ import java.util.Map;
 
 @Repository
 public interface ProjectDAO {
-	char COMMA = ',';
-
 	@InsertProvider(type = ProjectProvider.class, method = "addProjects")
 	void addProjects(List<ProjectDO> projects);
 
@@ -33,9 +32,9 @@ public interface ProjectDAO {
 			sql.append("(id, name, description, project_tag, organization_id)").append(" VALUES ");
 			Iterator projects = map.get("list").iterator();
 			while (projects.hasNext()){
-				ProjectDO project = (ProjectDO) projects.next();
-				sql.append('(').append("'").append(project.getId()).append("'").append(COMMA).append("'").append(project.getName()).append("'").append(COMMA).append("'").append(project.getDescription()).append("'").append(COMMA).append("'").append(project.getProjectTag()).append("'").append(COMMA).append("'").append(project.getOrganizationId()).append("'").append(')');
-				if (projects.hasNext()) sql.append(COMMA);
+				Object project = projects.next();
+				sql.append(SqlUtil.insertValue(project, new String[]{"id", "name", "description", "projectTag", "organizationId"}));
+				if (projects.hasNext()) sql.append(',');
 			}
 			return sql.toString();
 		}

@@ -257,7 +257,7 @@ public class LoginServiceImpl implements ILoginService {
 				while (core.isAlive()) {
 					try {
 						Map<String, String> resultMap = syncCheck();
-						LOG.info(JSONObject.toJSONString(resultMap));
+//						LOG.info(JSONObject.toJSONString(resultMap));
 						String retcode = resultMap.get("retcode");
 						String selector = resultMap.get("selector");
 						if (retcode.equals(RetCodeEnum.UNKOWN.getCode())) {
@@ -280,10 +280,13 @@ public class LoginServiceImpl implements ILoginService {
 										try {
 											List<MessageDTO> messages = messageCenter.produceMsg(msgObj.getJSONArray("AddMsgList"));
 											for (MessageDTO message : messages){
-												if (message.isGroupMsg())sendMessage(message);
+//												if (message.isGroupMsg()) sendMessage(message);
+												SleepUtil.sleep(10);
 											}
+										} catch (NullPointerException e) {
+
 										} catch (Exception e) {
-											LOG.info(e.getMessage());
+											LOG.info(e.getMessage(), e);
 										}
 									}
 									break;
@@ -338,7 +341,11 @@ public class LoginServiceImpl implements ILoginService {
 		sendMessageDTO.addProject(projectId);
 		sendMessageDTO.setMessageType(Constant.MESSAGE_TYPE_TEXT);
 		sendMessageDTO.setText(message.getFromNickName() + ": " + message.getText());
-		teambitionService.sendMessage(sendMessageDTO);
+		try {
+			teambitionService.sendMessage(sendMessageDTO);
+		}catch (Exception e) {
+			LOG.info(e.getMessage(), e);
+		}
 	}
 
 	@Override

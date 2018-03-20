@@ -49,7 +49,6 @@ public class TeambitionService {
 		headers.put(HttpUtil.CONTENT_TYPE, HttpUtil.DEFAULT_RESPONSE_TYPE);
 
 		HttpEntity entity = new StringEntity(sendMessageDTO.toString(), ContentType.create(HttpUtil.POST_BODY_TYPE_JSON, HttpUtil.UTF_8));
-		System.out.println(sendMessageDTO.toString());
 		try {
 			teambitionHttpService.post(headers, TeambitionURL.MESSAGE_SEND.url(), entity, null);
 		} catch (HttpException e) {
