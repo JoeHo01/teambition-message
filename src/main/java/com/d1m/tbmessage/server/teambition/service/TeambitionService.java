@@ -53,6 +53,7 @@ public class TeambitionService {
 			teambitionHttpService.post(headers, TeambitionURL.MESSAGE_SEND.url(), entity, null);
 		} catch (HttpException e) {
 			LOG.error(e.getMessage(), e);
+			e.getMessage();
 		}
 	}
 

@@ -2,9 +2,9 @@ package com.d1m.tbmessage.server.wechat.login.controller;
 
 import com.d1m.tbmessage.server.wechat.api.WechatTools;
 import com.d1m.tbmessage.server.wechat.core.Core;
+import com.d1m.tbmessage.server.wechat.listener.MessageListener;
 import com.d1m.tbmessage.server.wechat.login.service.ILoginService;
-import com.d1m.tbmessage.server.wechat.login.service.impl.LoginServiceImpl;
-import com.d1m.tbmessage.server.wechat.thread.CheckLoginStatusThread;
+import com.d1m.tbmessage.server.wechat.listener.LoginStatusListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,12 +23,21 @@ import org.springframework.stereotype.Controller;
 @Controller
 public class LoginController {
 	private Logger LOG = LoggerFactory.getLogger(LoginController.class);
-	private final ILoginService loginService;
+
 	private static Core core = Core.getInstance();
 
+	private final ILoginService loginService;
+
+	private final LoginStatusListener loginStatusListener;
+
+	private final MessageListener messageListener;
+
+
 	@Autowired
-	public LoginController(ILoginService loginService) {
+	public LoginController(ILoginService loginService, LoginStatusListener loginStatusListener, MessageListener messageListener) {
 		this.loginService = loginService;
+		this.loginStatusListener = loginStatusListener;
+		this.messageListener = messageListener;
 	}
 
 	public void login() {
@@ -59,31 +68,31 @@ public class LoginController {
 				LOG.info(("登陆成功"));
 				break;
 			}
-			LOG.info("4. 登陆超时，请重新扫描二维码图片");
+			LOG.info("3.1 登陆超时，请重新扫描二维码图片");
 		}
 
-		LOG.info("5. 登陆成功，微信初始化");
+		LOG.info("4. 登陆成功，微信初始化");
 		if (!loginService.webWxInit()) {
-			LOG.info("6. 微信初始化异常");
+			LOG.info("4.1 微信初始化异常");
 			System.exit(0);
 		}
 
-		LOG.info("6. 开启微信状态通知");
+		LOG.info("5. 开启微信状态通知");
 		loginService.wxStatusNotify();
 
-		LOG.info("7. 开始接收消息");
-		loginService.startReceiving();
-
-		LOG.info("8. 获取联系人信息");
+		LOG.info("6. 获取联系人信息");
 		loginService.webWxGetContact();
 
-		LOG.info("9. 获取群好友及群好友列表");
+		LOG.info("7. 获取群好友及群好友列表");
 		loginService.WebWxBatchGetContact();
 
-		LOG.info("10. 缓存本次登陆好友相关消息");
-		WechatTools.setUserInfo(); // 登陆成功后缓存本次登陆好友相关消息（NickName, UserName）
+		LOG.info("8. 缓存本次登陆好友相关消息");
+		WechatTools.setUserInfo(); // 登陆成功后缓存本次登陆好友相关消息(NickName, UserName)
 
-		LOG.info("11.开启微信状态检测线程");
-		new Thread(new CheckLoginStatusThread()).start();
+		LOG.info("9. 开始接收消息");
+		messageListener.start();
+
+		LOG.info("10.开启微信状态检测线程");
+		loginStatusListener.start();
 	}
 }

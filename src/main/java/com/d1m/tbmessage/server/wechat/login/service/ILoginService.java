@@ -56,14 +56,6 @@ public interface ILoginService {
 	void wxStatusNotify();
 
 	/**
-	 * 接收消息
-	 * 
-	 * @author Joe He
-	 * @date 2017年5月13日 上午12:14:37
-	 */
-	void startReceiving();
-
-	/**
 	 * 获取微信联系人
 	 * 
 	 * @author Joe He

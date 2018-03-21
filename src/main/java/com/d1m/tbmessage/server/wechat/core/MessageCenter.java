@@ -32,9 +32,9 @@ import static com.d1m.tbmessage.server.wechat.constant.enums.MsgCodeEnum.*;
 public class MessageCenter {
 	private static Logger LOG = LoggerFactory.getLogger(MessageCenter.class);
 
-	private static Map<String, MemberDTO> recommends = MemberDTO.getInstance();
+	private Map<String, MemberDTO> recommends = MemberDTO.getInstance();
 
-	private static Map<String, GroupDTO> groups = GroupDTO.getInstance();
+	private Map<String, GroupDTO> groups = GroupDTO.getInstance();
 
 	/**
 	 * 接收消息，放入队列

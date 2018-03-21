@@ -55,7 +55,6 @@ public class Core {
 
 	private boolean useHotReload = false;
 	private String hotReloadDir = "itchat.pkl";
-	private int receivingRetryCount = 5;
 
 	private long lastNormalRetcodeTime; // 最后一次收到正常retcode的时间，秒为单位
 
@@ -125,14 +124,6 @@ public class Core {
 
 	public void setHotReloadDir(String hotReloadDir) {
 		this.hotReloadDir = hotReloadDir;
-	}
-
-	public int getReceivingRetryCount() {
-		return receivingRetryCount;
-	}
-
-	public void setReceivingRetryCount(int receivingRetryCount) {
-		this.receivingRetryCount = receivingRetryCount;
 	}
 
 	public List<MessageDTO> getMsgList() {
