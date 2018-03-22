@@ -1,6 +1,6 @@
 package com.d1m.tbmessage.server.wechat.login.service;
 
-import com.d1m.tbmessage.common.HttpUtil;
+import com.d1m.tbmessage.common.util.HttpUtil;
 import com.d1m.tbmessage.server.wechat.constant.Config;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;

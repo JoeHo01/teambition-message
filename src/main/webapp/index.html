@@ -13,9 +13,7 @@
       }
     }
   };
-  var url = window.document.location.protocol + "//" + window.document.location.host;
   xhr.open('get', window.document.location.protocol + "//" + window.document.location.host + "/wechat/login");
-  alert(url);
   xhr.send(null);
 </script>
 <body>
@@ -28,6 +26,6 @@
 </div>
 </body>
 <script>
-  document.getElementById("login_img").src = window.document.location.protocol + "//" + window.document.location.host + "/login/QR.jpg";
+  document.getElementById("login_img").src = window.document.location.protocol + "//" + window.document.location.host + "/static/login/QR.jpg";
 </script>
 </html>

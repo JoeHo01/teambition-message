@@ -1,8 +1,7 @@
 package com.d1m.tbmessage.server.wechat.login.service.impl;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -13,6 +12,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.regex.Matcher;
 
+import com.d1m.tbmessage.common.util.FileUtil;
 import com.d1m.tbmessage.server.wechat.login.service.WechatHttpService;
 import com.d1m.tbmessage.server.teambition.config.SendingInfo;
 import com.d1m.tbmessage.server.wechat.entity.GroupDTO;
@@ -53,6 +53,8 @@ import com.d1m.tbmessage.server.wechat.core.MessageTool;
 public class LoginServiceImpl implements ILoginService {
 	private static Logger LOG = LoggerFactory.getLogger(LoginServiceImpl.class);
 
+	private final long WAITING = 2 * 60 * 1000;
+
 	private Core core = Core.getInstance();
 
 	private Map<String, GroupDTO> groups = GroupDTO.getInstance();
@@ -71,17 +73,17 @@ public class LoginServiceImpl implements ILoginService {
 	@Override
 	public boolean login() {
 
-		boolean isLogin = false;
 		// 组装参数和URL
-		List<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
+		List<BasicNameValuePair> params = new ArrayList<>();
 		params.add(new BasicNameValuePair(LoginParaEnum.LOGIN_ICON.para(), LoginParaEnum.LOGIN_ICON.value()));
 		params.add(new BasicNameValuePair(LoginParaEnum.UUID.para(), core.getUuid()));
 		params.add(new BasicNameValuePair(LoginParaEnum.TIP.para(), LoginParaEnum.TIP.value()));
 
-		// long time = 4000;
-		while (!isLogin) {
-			// SleepUtil.sleep(time += 1000);
+		long startTime = System.currentTimeMillis();
+		while (true) {
 			long millis = System.currentTimeMillis();
+			// 请求超时
+			if (millis - startTime > WAITING) return false;
 			params.add(new BasicNameValuePair(LoginParaEnum.R.para(), String.valueOf(millis / 1579L)));
 			params.add(new BasicNameValuePair(LoginParaEnum._.para(), String.valueOf(millis)));
 			HttpEntity entity = wechatHttpService.doGet(URLEnum.LOGIN_URL.getUrl(), params, true, null);
@@ -92,25 +94,22 @@ public class LoginServiceImpl implements ILoginService {
 
 				if (ResultEnum.SUCCESS.getCode().equals(status)) {
 					processLoginInfo(result); // 处理结果
-					isLogin = true;
-					core.setAlive(isLogin);
-					break;
+					return true;
 				}
 				if (ResultEnum.WAIT_CONFIRM.getCode().equals(status)) {
 					LOG.info("请点击微信确认按钮，进行登陆");
 				}
-
 			} catch (Exception e) {
 				LOG.error("微信登陆异常！", e);
+				return false;
 			}
 		}
-		return isLogin;
 	}
 
 	@Override
 	public String getUuid() {
 		// 组装参数和URL
-		List<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
+		List<BasicNameValuePair> params = new ArrayList<>();
 		params.add(new BasicNameValuePair(UUIDParaEnum.APP_ID.para(), UUIDParaEnum.APP_ID.value()));
 		params.add(new BasicNameValuePair(UUIDParaEnum.FUN.para(), UUIDParaEnum.FUN.value()));
 		params.add(new BasicNameValuePair(UUIDParaEnum.LANG.para(), UUIDParaEnum.LANG.value()));
@@ -136,22 +135,19 @@ public class LoginServiceImpl implements ILoginService {
 
 	@Override
 	public boolean getQR(String qrPath) {
+		// create directory
+		if (!FileUtil.createDirectory(qrPath)) return false;
+		// file path
 		qrPath = qrPath + File.separator + "QR.jpg";
+		// build param
 		String qrUrl = URLEnum.QRCODE_URL.getUrl() + core.getUuid();
 		HttpEntity entity = wechatHttpService.doGet(qrUrl, null, true, null);
 		try {
-			OutputStream out = new FileOutputStream(qrPath);
-			byte[] bytes = EntityUtils.toByteArray(entity);
-			out.write(bytes);
-			out.flush();
-			out.close();
-
-		} catch (Exception e) {
+			return FileUtil.writeFile(qrPath, EntityUtils.toByteArray(entity), false);
+		} catch (IOException e) {
 			LOG.info(e.getMessage());
 			return false;
 		}
-
-		return true;
 	}
 
 	@Override

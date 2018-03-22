@@ -92,6 +92,24 @@
   </dependencies>
 
   <build>
+
+    <resources>
+      <resource>
+        <directory>${basedir}/src/main/webapp</directory>
+        <!--将webapp目录设为静态资源，并映射到resources-->
+        <targetPath>META-INF/resources</targetPath>
+        <includes>
+          <include>**/**</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <includes>
+          <include>**/**</include>
+        </includes>
+      </resource>
+    </resources>
+
     <finalName>teambition-message</finalName>
     <plugins>
       <plugin>

@@ -2,7 +2,7 @@ package com.d1m.tbmessage.server.teambition.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.d1m.tbmessage.common.HttpUtil;
+import com.d1m.tbmessage.common.util.HttpUtil;
 import com.d1m.tbmessage.server.database.dao.ProjectDAO;
 import com.d1m.tbmessage.server.database.entity.ProjectDO;
 import com.d1m.tbmessage.server.teambition.config.AppSecretInfo;

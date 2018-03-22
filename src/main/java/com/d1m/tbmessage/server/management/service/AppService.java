@@ -1,6 +1,6 @@
 package com.d1m.tbmessage.server.management.service;
 
-import com.d1m.tbmessage.common.WordsUtil;
+import com.d1m.tbmessage.common.util.WordsUtil;
 import com.d1m.tbmessage.common.annotation.AnnotationUtil;
 import com.d1m.tbmessage.server.database.dao.AppSecretDAO;
 import com.d1m.tbmessage.server.database.dao.OrganizationDAO;

@@ -4,7 +4,7 @@ import com.d1m.tbmessage.server.wechat.core.Core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.d1m.tbmessage.common.SleepUtil;
+import com.d1m.tbmessage.common.util.SleepUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package com.d1m.tbmessage.common;
+package com.d1m.tbmessage.common.util;
 
 /**
  * Created by Jo on 2017/5/6.

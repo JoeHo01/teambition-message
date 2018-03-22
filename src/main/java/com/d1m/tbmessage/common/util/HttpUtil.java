@@ -1,4 +1,4 @@
-package com.d1m.tbmessage.common;
+package com.d1m.tbmessage.common.util;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;

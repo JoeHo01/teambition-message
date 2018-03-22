@@ -1,6 +1,6 @@
 package com.d1m.tbmessage.server.teambition.service;
 
-import com.d1m.tbmessage.common.HttpUtil;
+import com.d1m.tbmessage.common.util.HttpUtil;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;

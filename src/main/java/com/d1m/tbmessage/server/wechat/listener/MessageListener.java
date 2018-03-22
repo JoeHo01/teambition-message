@@ -3,7 +3,7 @@ package com.d1m.tbmessage.server.wechat.listener;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.d1m.tbmessage.common.SleepUtil;
+import com.d1m.tbmessage.common.util.SleepUtil;
 import com.d1m.tbmessage.server.management.service.MessageService;
 import com.d1m.tbmessage.server.wechat.constant.enums.RetCodeEnum;
 import com.d1m.tbmessage.server.wechat.constant.enums.StorageLoginInfoEnum;
