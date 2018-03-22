@@ -47,16 +47,16 @@ public class LoginController {
 		}
 		while (true) {
 			for (int count = 0; count < 10; count++) {
-				LOG.info("获取UUID");
+				LOG.info("1. 获取微信UUID");
 				while (loginService.getUuid() == null) {
-					LOG.info("1. 获取微信UUID");
+					LOG.warn("1.1. 获取微信UUID失败，两秒后重新获取");
 					while (loginService.getUuid() == null) {
-						LOG.warn("1.1. 获取微信UUID失败，两秒后重新获取");
 						SleepUtil.sleep(2000);
 					}
 				}
 				LOG.info("2. 获取登陆二维码图片");
 				String qrPath = this.getClass().getClassLoader().getResource("").getPath() + "static/login/";
+				System.out.println("Path : " + qrPath);
 				if (loginService.getQR(qrPath)) {
 					break;
 				}

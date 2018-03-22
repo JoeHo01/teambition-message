@@ -25,7 +25,6 @@ import com.d1m.tbmessage.server.wechat.constant.enums.URLEnum;
 import com.d1m.tbmessage.server.wechat.constant.enums.parameters.LoginParaEnum;
 import com.d1m.tbmessage.server.wechat.constant.enums.parameters.StatusNotifyParaEnum;
 import com.d1m.tbmessage.server.wechat.constant.enums.parameters.UUIDParaEnum;
-import com.sun.xml.internal.bind.v2.TODO;
 import org.apache.http.Consts;
 import org.apache.http.HttpEntity;
 import org.apache.http.message.BasicNameValuePair;
