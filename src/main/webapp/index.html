@@ -4,6 +4,20 @@
     <meta charset="UTF-8">
     <title>Teambition Message Care</title>
 </head>
+<script>
+  var xhr =  new XMLHttpRequest();
+  xhr.onreadystatechange = function () {
+    if(xhr.readyState === 4){
+      if(xhr.status >= 200 && xhr.status < 304 || xhr.status === 304){
+        console.log(xhr.responseText);
+      }
+    }
+  };
+  var url = window.document.location.protocol + "//" + window.document.location.host;
+  xhr.open('get', window.document.location.protocol + "//" + window.document.location.host + "/wechat/login");
+  alert(url);
+  xhr.send(null);
+</script>
 <body>
 <h1 style="text-align: center; margin-top: 50px">Teambition Message Care</h1>
 <div style="text-align: center; margin-top: 100px">

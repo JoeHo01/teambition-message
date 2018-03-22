@@ -8,6 +8,5 @@ class App {
 		System.setProperty("jsse.enableSNIExtension", "false"); // 防止SSL错误
 
 		Application.getBean(AppSecretController.class).init();
-		Application.getBean(LoginController.class).login();
 	}
 }
