@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.d1m.tbmessage.common.util.SleepUtil;
 import com.d1m.tbmessage.server.management.service.MessageService;
 import com.d1m.tbmessage.server.wechat.constant.enums.RetCodeEnum;
-import com.d1m.tbmessage.server.wechat.constant.enums.StorageLoginInfoEnum;
+import com.d1m.tbmessage.server.wechat.constant.enums.StorageLoginInfo;
 import com.d1m.tbmessage.server.wechat.constant.enums.URLEnum;
 import com.d1m.tbmessage.server.wechat.constant.enums.parameters.BaseParaEnum;
 import com.d1m.tbmessage.server.wechat.core.Core;
@@ -150,13 +150,13 @@ public class MessageListener {
 		private JSONObject webWxSync() {
 			JSONObject result = null;
 			String url = String.format(URLEnum.WEB_WX_SYNC_URL.getUrl(),
-					core.getLoginInfo().get(StorageLoginInfoEnum.url.getKey()),
-					core.getLoginInfo().get(StorageLoginInfoEnum.wxsid.getKey()),
-					core.getLoginInfo().get(StorageLoginInfoEnum.skey.getKey()),
-					core.getLoginInfo().get(StorageLoginInfoEnum.pass_ticket.getKey()));
+					core.getLoginInfo().get(StorageLoginInfo.URL),
+					core.getLoginInfo().get(StorageLoginInfo.WX_SID),
+					core.getLoginInfo().get(StorageLoginInfo.S_KEY),
+					core.getLoginInfo().get(StorageLoginInfo.PASS_TICKET));
 			Map<String, Object> paramMap = core.getParamMap();
-			paramMap.put(StorageLoginInfoEnum.SyncKey.getKey(),
-					core.getLoginInfo().get(StorageLoginInfoEnum.SyncKey.getKey()));
+			paramMap.put(StorageLoginInfo.SYNC_KEY,
+					core.getLoginInfo().get(StorageLoginInfo.SYNC_KEY));
 			paramMap.put("rr", -new Date().getTime() / 1000);
 			String paramStr = JSON.toJSONString(paramMap);
 			try {
@@ -167,14 +167,14 @@ public class MessageListener {
 					result = null;
 				} else {
 					result = obj;
-					core.getLoginInfo().put(StorageLoginInfoEnum.SyncKey.getKey(), obj.getJSONObject("SyncCheckKey"));
-					JSONArray syncArray = obj.getJSONObject(StorageLoginInfoEnum.SyncKey.getKey()).getJSONArray("List");
+					core.getLoginInfo().put(StorageLoginInfo.SYNC_KEY, obj.getJSONObject("SyncCheckKey"));
+					JSONArray syncArray = obj.getJSONObject(StorageLoginInfo.SYNC_KEY).getJSONArray("List");
 					StringBuilder sb = new StringBuilder();
 					for (int i = 0; i < syncArray.size(); i++) {
 						sb.append(syncArray.getJSONObject(i).getString("Key")).append("_").append(syncArray.getJSONObject(i).getString("Val")).append("|");
 					}
 					String synckey = sb.toString();
-					core.getLoginInfo().put(StorageLoginInfoEnum.synckey.getKey(), synckey.substring(0, synckey.length() - 1));
+					core.getLoginInfo().put(StorageLoginInfo.sync_key, synckey.substring(0, synckey.length() - 1));
 				}
 			} catch (Exception e) {
 				LOG.info(e.getMessage());
@@ -193,7 +193,7 @@ public class MessageListener {
 		private Map<String, String> syncCheck() {
 			Map<String, String> resultMap = new HashMap<String, String>();
 			// 组装请求URL和参数
-			String url = core.getLoginInfo().get(StorageLoginInfoEnum.syncUrl.getKey()) + URLEnum.SYNC_CHECK_URL.getUrl();
+			String url = core.getLoginInfo().get(StorageLoginInfo.SYNC_URL) + URLEnum.SYNC_CHECK_URL.getUrl();
 			List<BasicNameValuePair> params = new ArrayList<BasicNameValuePair>();
 			for (BaseParaEnum baseRequest : BaseParaEnum.values()) {
 				params.add(new BasicNameValuePair(baseRequest.para().toLowerCase(),

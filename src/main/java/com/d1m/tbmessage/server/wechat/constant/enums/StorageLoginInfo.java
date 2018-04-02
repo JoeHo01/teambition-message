@@ -11,7 +11,7 @@ public class StorageLoginInfo {
 	public static final String INVITE_START_COUNT = "InviteStartCount";
 	public static final String USER = "User";
 	public static final String SYNC_KEY = "SyncKey";
-	public static final String sync_KEY = "syncKey";
+	public static final String sync_key = "synckey";
 	public static final String MEMBER_COUNT = "MemberCount";
 	public static final String MEMBER_LIST = "MemberList";
 }

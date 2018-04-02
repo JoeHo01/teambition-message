@@ -20,7 +20,7 @@ import com.d1m.tbmessage.server.wechat.entity.MemberDTO;
 import com.d1m.tbmessage.server.wechat.core.Core;
 import com.d1m.tbmessage.server.wechat.login.service.ILoginService;
 import com.d1m.tbmessage.server.wechat.constant.enums.ResultEnum;
-import com.d1m.tbmessage.server.wechat.constant.enums.StorageLoginInfoEnum;
+import com.d1m.tbmessage.server.wechat.constant.enums.StorageLoginInfo;
 import com.d1m.tbmessage.server.wechat.constant.enums.URLEnum;
 import com.d1m.tbmessage.server.wechat.constant.enums.parameters.LoginParaEnum;
 import com.d1m.tbmessage.server.wechat.constant.enums.parameters.StatusNotifyParaEnum;
@@ -97,10 +97,10 @@ public class LoginServiceImpl implements ILoginService {
 					return true;
 				}
 				if (ResultEnum.WAIT_CONFIRM.getCode().equals(status)) {
-					LOG.info("请点击微信确认按钮，进行登陆");
+					LOG.info("Please confirm for login");
 				}
 			} catch (Exception e) {
-				LOG.error("微信登陆异常！", e);
+				LOG.error("Login error", e);
 				return false;
 			}
 		}
@@ -155,9 +155,9 @@ public class LoginServiceImpl implements ILoginService {
 		core.setLastNormalRetcodeTime(System.currentTimeMillis());
 		// 组装请求URL和参数
 		String url = String.format(URLEnum.INIT_URL.getUrl(),
-				core.getLoginInfo().get(StorageLoginInfoEnum.url.getKey()),
+				core.getLoginInfo().get(StorageLoginInfo.URL),
 				String.valueOf(System.currentTimeMillis() / 3158L),
-				core.getLoginInfo().get(StorageLoginInfoEnum.pass_ticket.getKey()));
+				core.getLoginInfo().get(StorageLoginInfo.PASS_TICKET));
 
 		Map<String, Object> paramMap = core.getParamMap();
 
@@ -167,12 +167,12 @@ public class LoginServiceImpl implements ILoginService {
 			String result = EntityUtils.toString(entity, Consts.UTF_8);
 			JSONObject obj = JSON.parseObject(result);
 
-			JSONObject user = obj.getJSONObject(StorageLoginInfoEnum.User.getKey());
-			JSONObject syncKey = obj.getJSONObject(StorageLoginInfoEnum.SyncKey.getKey());
+			JSONObject user = obj.getJSONObject(StorageLoginInfo.USER);
+			JSONObject syncKey = obj.getJSONObject(StorageLoginInfo.SYNC_KEY);
 
-			core.getLoginInfo().put(StorageLoginInfoEnum.InviteStartCount.getKey(),
-					obj.getInteger(StorageLoginInfoEnum.InviteStartCount.getKey()));
-			core.getLoginInfo().put(StorageLoginInfoEnum.SyncKey.getKey(), syncKey);
+			core.getLoginInfo().put(StorageLoginInfo.INVITE_START_COUNT,
+					obj.getInteger(StorageLoginInfo.INVITE_START_COUNT));
+			core.getLoginInfo().put(StorageLoginInfo.SYNC_KEY, syncKey);
 
 			JSONArray syncArray = syncKey.getJSONArray("List");
 			StringBuilder sb = new StringBuilder();
@@ -181,7 +181,7 @@ public class LoginServiceImpl implements ILoginService {
 			}
 			String synckey = sb.toString();
 
-			core.getLoginInfo().put(StorageLoginInfoEnum.synckey.getKey(), synckey.substring(0, synckey.length() - 1));
+			core.getLoginInfo().put(StorageLoginInfo.sync_key, synckey.substring(0, synckey.length() - 1));
 			core.setUserName(user.getString("UserName"));
 			core.setNickName(user.getString("NickName"));
 			core.setUserSelf(obj.getJSONObject("User"));
@@ -205,7 +205,7 @@ public class LoginServiceImpl implements ILoginService {
 	public void wxStatusNotify() {
 		// 组装请求URL和参数
 		String url = String.format(URLEnum.STATUS_NOTIFY_URL.getUrl(),
-				core.getLoginInfo().get(StorageLoginInfoEnum.pass_ticket.getKey()));
+				core.getLoginInfo().get(StorageLoginInfo.PASS_TICKET));
 
 		Map<String, Object> paramMap = core.getParamMap();
 		paramMap.put(StatusNotifyParaEnum.CODE.para(), StatusNotifyParaEnum.CODE.value());
@@ -226,7 +226,7 @@ public class LoginServiceImpl implements ILoginService {
 	@Override
 	public void webWxGetContact() {
 		String url = String.format(URLEnum.WEB_WX_GET_CONTACT.getUrl(),
-				core.getLoginInfo().get(StorageLoginInfoEnum.url.getKey()));
+				core.getLoginInfo().get(StorageLoginInfo.URL));
 		Map<String, Object> paramMap = core.getParamMap();
 		HttpEntity entity = wechatHttpService.doPost(url, JSON.toJSONString(paramMap));
 
@@ -241,8 +241,8 @@ public class LoginServiceImpl implements ILoginService {
 				seq = fullFriendsJsonList.getLong("Seq");
 				currentTime = new Date().getTime();
 			}
-			core.setMemberCount(fullFriendsJsonList.getInteger(StorageLoginInfoEnum.MemberCount.getKey()));
-			JSONArray member = fullFriendsJsonList.getJSONArray(StorageLoginInfoEnum.MemberList.getKey());
+			core.setMemberCount(fullFriendsJsonList.getInteger(StorageLoginInfo.MEMBER_COUNT));
+			JSONArray member = fullFriendsJsonList.getJSONArray(StorageLoginInfo.MEMBER_LIST);
 			// 循环获取seq直到为0，即获取全部好友列表 ==0：好友获取完毕 >0：好友未获取完毕，此时seq为已获取的字节数
 			while (seq > 0) {
 				// 设置seq传参
@@ -262,7 +262,7 @@ public class LoginServiceImpl implements ILoginService {
 				}
 
 				// 累加好友列表
-				member.addAll(fullFriendsJsonList.getJSONArray(StorageLoginInfoEnum.MemberList.getKey()));
+				member.addAll(fullFriendsJsonList.getJSONArray(StorageLoginInfo.MEMBER_LIST));
 			}
 			core.setMemberCount(member.size());
 			for (Object aMember : member) {
@@ -287,8 +287,8 @@ public class LoginServiceImpl implements ILoginService {
 	@Override
 	public void WebWxBatchGetContact() {
 		String url = String.format(URLEnum.WEB_WX_BATCH_GET_CONTACT.getUrl(),
-				core.getLoginInfo().get(StorageLoginInfoEnum.url.getKey()), new Date().getTime(),
-				core.getLoginInfo().get(StorageLoginInfoEnum.pass_ticket.getKey()));
+				core.getLoginInfo().get(StorageLoginInfo.URL), new Date().getTime(),
+				core.getLoginInfo().get(StorageLoginInfo.PASS_TICKET));
 		Map<String, Object> paramMap = core.getParamMap();
 		paramMap.put("Count", core.getGroupIdList().size());
 		List<Map<String, String>> list = new ArrayList<>();
@@ -398,17 +398,17 @@ public class LoginServiceImpl implements ILoginService {
 			}
 			Document doc = MessageTool.xmlParser(text);
 			if (doc != null) {
-				core.getLoginInfo().put(StorageLoginInfoEnum.skey.getKey(),
-						doc.getElementsByTagName(StorageLoginInfoEnum.skey.getKey()).item(0).getFirstChild()
+				core.getLoginInfo().put(StorageLoginInfo.S_KEY,
+						doc.getElementsByTagName(StorageLoginInfo.S_KEY).item(0).getFirstChild()
 								.getNodeValue());
-				core.getLoginInfo().put(StorageLoginInfoEnum.wxsid.getKey(),
-						doc.getElementsByTagName(StorageLoginInfoEnum.wxsid.getKey()).item(0).getFirstChild()
+				core.getLoginInfo().put(StorageLoginInfo.WX_SID,
+						doc.getElementsByTagName(StorageLoginInfo.WX_SID).item(0).getFirstChild()
 								.getNodeValue());
-				core.getLoginInfo().put(StorageLoginInfoEnum.wxuin.getKey(),
-						doc.getElementsByTagName(StorageLoginInfoEnum.wxuin.getKey()).item(0).getFirstChild()
+				core.getLoginInfo().put(StorageLoginInfo.WX_UIN,
+						doc.getElementsByTagName(StorageLoginInfo.WX_UIN).item(0).getFirstChild()
 								.getNodeValue());
-				core.getLoginInfo().put(StorageLoginInfoEnum.pass_ticket.getKey(),
-						doc.getElementsByTagName(StorageLoginInfoEnum.pass_ticket.getKey()).item(0).getFirstChild()
+				core.getLoginInfo().put(StorageLoginInfo.PASS_TICKET,
+						doc.getElementsByTagName(StorageLoginInfo.PASS_TICKET).item(0).getFirstChild()
 								.getNodeValue());
 			}
 
