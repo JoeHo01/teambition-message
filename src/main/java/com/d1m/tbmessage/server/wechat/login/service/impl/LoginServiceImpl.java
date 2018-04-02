@@ -152,7 +152,6 @@ public class LoginServiceImpl implements ILoginService {
 
 	@Override
 	public boolean webWxInit() {
-		core.setAlive(true);
 		core.setLastNormalRetcodeTime(System.currentTimeMillis());
 		// 组装请求URL和参数
 		String url = String.format(URLEnum.INIT_URL.getUrl(),

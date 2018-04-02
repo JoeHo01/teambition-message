@@ -70,7 +70,6 @@ public class MessageListener {
 
 		@Override
 		public void run() {
-			core.setAlive(true);
 			while (core.isAlive()) {
 				try {
 					Map<String, String> resultMap = syncCheck();
@@ -81,12 +80,15 @@ public class MessageListener {
 						LOG.info(RetCodeEnum.UNKOWN.getType());
 					} else if (retcode.equals(RetCodeEnum.LOGIN_OUT.getCode())) { // 退出
 						LOG.info(RetCodeEnum.LOGIN_OUT.getType());
+						core.setAlive(false);
 						break;
 					} else if (retcode.equals(RetCodeEnum.LOGIN_OTHERWHERE.getCode())) { // 其它地方登陆
 						LOG.info(RetCodeEnum.LOGIN_OTHERWHERE.getType());
+						core.setAlive(false);
 						break;
 					} else if (retcode.equals(RetCodeEnum.MOBILE_LOGIN_OUT.getCode())) { // 移动端退出
 						LOG.info(RetCodeEnum.MOBILE_LOGIN_OUT.getType());
+						core.setAlive(false);
 						break;
 					} else if (retcode.equals(RetCodeEnum.NORMAL.getCode())) {
 						core.setLastNormalRetcodeTime(System.currentTimeMillis()); // 最后收到正常报文时间
