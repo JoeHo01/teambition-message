@@ -16,10 +16,19 @@ public class SqlUtil {
 		for (int i = 0; i < column.length; i++) {
 			if (i > 0) value.append(',');
 			value.append('\'');
-			value.append(jsonObject.getString(column[i]));
+			value.append(Escape(jsonObject.getString(column[i])));
 			value.append('\'');
 		}
 		value.append(')');
 		return value.toString();
+	}
+
+	/**
+	 * Escape characters
+	 * @param words
+	 * @return
+	 */
+	private static String Escape(String words) {
+		return words.replaceAll("'", "\\\\\'").replaceAll("\"", "\\\\\"");
 	}
 }

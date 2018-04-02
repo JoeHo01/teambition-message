@@ -21,6 +21,6 @@ public class AppSecretController {
 	public void init(){
 		appService.getProjects();
 		appService.getAppSecretInfo();
-		appSecretInfo.setOrganizationId(appService.getOrganizationId("第一秒电商"));
+		appSecretInfo.setOrganizationId(appService.getOrganizationId());
 	}
 }

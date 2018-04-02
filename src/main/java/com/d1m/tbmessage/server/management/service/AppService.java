@@ -1,5 +1,6 @@
 package com.d1m.tbmessage.server.management.service;
 
+import com.alibaba.fastjson.JSONArray;
 import com.d1m.tbmessage.common.util.WordsUtil;
 import com.d1m.tbmessage.common.annotation.AnnotationUtil;
 import com.d1m.tbmessage.server.database.dao.AppSecretDAO;
@@ -49,15 +50,15 @@ public class AppService {
 		for (AppSecretDO appSecret : appSecrets) {
 			try {
 				// set value
-				AppSecretInfo.class.getMethod("set" + WordsUtil.upperFirstCase(appSecretsName.get(appSecret.getKey())), String.class).invoke(appSecretInfo, appSecret.getValue());
+				AppSecretInfo.class.getMethod(WordsUtil.setMethodName(appSecretsName.get(appSecret.getKey())), String.class).invoke(appSecretInfo, appSecret.getValue());
 			} catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
 				LOG.error(e.getMessage(), e);
 			}
 		}
 	}
 
-	public String getOrganizationId(String name) {
-		return organizationDAO.getIdByName(name);
+	public String getOrganizationId() {
+		return organizationDAO.getId();
 	}
 
 	public void getProjects() {
@@ -65,9 +66,5 @@ public class AppService {
 		for (ProjectDO project : projects) {
 			sendingInfo.setProject(project.getName(), project.getId());
 		}
-	}
-
-	public String getProjectIdByName(String name) {
-		return projectDAO.getIdByName(name);
 	}
 }

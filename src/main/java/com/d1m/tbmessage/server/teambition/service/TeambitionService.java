@@ -10,6 +10,7 @@ import com.d1m.tbmessage.server.teambition.config.TeambitionURL;
 import com.d1m.tbmessage.server.teambition.entity.ProjectTagDTO;
 import com.d1m.tbmessage.server.teambition.entity.SendMessageDTO;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
@@ -22,6 +23,7 @@ import org.slf4j.helpers.MessageFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.parser.Entity;
 import java.io.IOException;
 import java.util.*;
 
@@ -59,44 +61,14 @@ public class TeambitionService {
 
 	public void reloadProjects(String organizationId){
 		projectDAO.deleteProjects(organizationId);
-		String getProjectTagsURL = MessageFormatter.format(TeambitionURL.PROJECT_TAGS_GET.url(), organizationId).getMessage();
-		List<ProjectTagDTO> projectTags = new ArrayList<>();
+		String getProjectsURL = MessageFormatter.format(TeambitionURL.PROJECTS_GET.url(), organizationId).getMessage();
+		List<ProjectDO> projects = null;
 		try {
-			HttpResponse projectTagsResponse = teambitionHttpService.get(null, getProjectTagsURL, null, appSecretInfo.getAccessToken());
-			JSONArray projectTagDTOs = JSONArray.parseArray(EntityUtils.toString(projectTagsResponse.getEntity(), HttpUtil.UTF_8));
-			if (projectTagDTOs != null) {
-				for (int i = 0; i < projectTagDTOs.size(); i++) {
-					JSONObject projectTagDTO = projectTagDTOs.getJSONObject(i);
-					ProjectTagDTO projectTag = new ProjectTagDTO();
-					projectTag.setId(projectTagDTO.getString("_id"));
-					projectTag.setName(projectTagDTO.getString("name"));
-					projectTags.add(projectTag);
-				}
-			}
+			HttpResponse response = teambitionHttpService.get(null, getProjectsURL, null, appSecretInfo.getAccessToken());
+			projects = JSONArray.parseArray(EntityUtils.toString(response.getEntity()), ProjectDO.class);
 		} catch (IOException | HttpException e) {
 			LOG.error(e.getMessage(), e);
-		}
-		List<ProjectDO> projects = new ArrayList<>();
-		if (CollectionUtils.isNotEmpty(projectTags)){
-			for (ProjectTagDTO projectTag : projectTags){
-				String getProjectsURL = MessageFormatter.format(TeambitionURL.PROJECTS_GET.url(), organizationId, projectTag.getId()).getMessage();
-				try {
-					HttpResponse getProjectsResponse = teambitionHttpService.get(null, getProjectsURL, null, appSecretInfo.getAccessToken());
-					JSONArray projectDTOs = JSONArray.parseArray(EntityUtils.toString(getProjectsResponse.getEntity()));
-					for (int i = 0; i < projectDTOs.size(); i++) {
-						JSONObject projectDTO = projectDTOs.getJSONObject(i);
-						ProjectDO project = new ProjectDO();
-						project.setId(projectDTO.getString("_id"));
-						project.setName(projectDTO.getString("name"));
-						project.setDescription(projectDTO.getString("description"));
-						project.setProjectTag(projectTag.getName());
-						project.setOrganizationId(organizationId);
-						projects.add(project);
-					}
-				} catch (IOException | HttpException e) {
-					LOG.error(e.getMessage(), e);
-				}
-			}
+			e.getMessage();
 		}
 		if (CollectionUtils.isNotEmpty(projects)) projectDAO.addProjects(projects);
 	}

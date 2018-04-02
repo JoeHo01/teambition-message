@@ -2,14 +2,12 @@ package test;
 
 import com.d1m.tbmessage.server.database.entity.ProjectDO;
 import com.d1m.tbmessage.server.database.util.SqlUtil;
+import org.apache.commons.lang3.StringEscapeUtils;
 
 public class Test {
 	public static void main(String[] args) {
-		ProjectDO project = new ProjectDO();
-		project.setOrganizationId("orgId");
-		project.setName("name");
-		project.setProjectTag("tag");
-		String sqlValue = SqlUtil.insertValue(project, new String[]{"id", "name", "description", "projectTag", "organizationId"});
-		System.out.println(sqlValue);
+		String words = "123\'123\"123";
+
+		System.out.println(words.replaceAll("'", "\\\\\'").replaceAll("\"", "\\\\\""));
 	}
 }

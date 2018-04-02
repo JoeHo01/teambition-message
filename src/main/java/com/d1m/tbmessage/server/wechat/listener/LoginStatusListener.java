@@ -1,6 +1,7 @@
 package com.d1m.tbmessage.server.wechat.listener;
 
 import com.d1m.tbmessage.server.wechat.core.Core;
+import com.d1m.tbmessage.server.wechat.login.controller.LoginController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +48,7 @@ public class LoginStatusListener{
 				long t1 = System.currentTimeMillis(); // 秒为单位
 				if (t1 - core.getLastNormalRetcodeTime() > 60 * 1000) { // 超过60秒，判为离线
 					core.setAlive(false);
-					LOG.info("微信已离线");
+					LOG.info("WeChat Logout");
 				}
 				SleepUtil.sleep(10 * 1000); // 休眠10秒
 			}

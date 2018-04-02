@@ -7,4 +7,6 @@ import org.springframework.stereotype.Repository;
 public interface OrganizationDAO {
 	@Select("SELECT id FROM organization WHERE name = #{name}")
 	String getIdByName(String name);
+	@Select("SELECT id FROM organization")
+	String getId();
 }

@@ -1,15 +1,6 @@
 package com.d1m.tbmessage.server.wechat.api;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.d1m.tbmessage.server.wechat.core.Core;
-import com.d1m.tbmessage.server.wechat.constant.enums.StorageLoginInfoEnum;
-import com.d1m.tbmessage.server.wechat.constant.enums.URLEnum;
-import org.apache.http.Consts;
-import org.apache.http.HttpEntity;
-import org.apache.http.message.BasicNameValuePair;
-import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

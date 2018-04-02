@@ -51,14 +51,14 @@ public class LoginController {
 
 	@RequestMapping(value = "login",method = RequestMethod.GET)
 	public void login(HttpServletRequest request) {
-		LOG.info("1. 获取微信UUID");
+		LOG.info("1. Get WeChat UUID");
 		while (loginService.getUuid() == null) {
-			LOG.warn("1.1. 获取微信UUID失败，两秒后重新获取");
+			LOG.warn("1.1. Fail to get UUID，will retry in 2 seconds");
 			while (loginService.getUuid() == null) {
 				SleepUtil.sleep(2000);
 			}
 		}
-		LOG.info("2. 获取登陆二维码图片");
+		LOG.info("2. Get QR code for login");
 		String qrPath = request.getServletContext().getRealPath("") + "static" + File.separatorChar + "login";
 
 		if (loginService.getQR(qrPath))	threadPoolTaskExecutor.execute(new LoginTask());
@@ -69,38 +69,37 @@ public class LoginController {
 		@Override
 		public void run() {
 			if (core.isAlive()) { // 已登陆
-				LOG.info("itchat4j已登陆");
+				LOG.info("Wechat is logon already");
 				return;
 			}
 
-			LOG.info("3. 请扫描二维码图片，并在手机上确认");
+			LOG.info("3. Please check QR code and confirm");
 			if (loginService.login()) {
 				core.setAlive(true);
-				LOG.info(("登陆成功"));
 			}else return;
 
-			LOG.info("4. 登陆成功，微信初始化");
+			LOG.info("4. Login succeed and init WeChat");
 			if (!loginService.webWxInit()) {
-				LOG.info("4.1 微信初始化异常");
+				LOG.info("4.1 Init Error");
 				return;
 			}
 
-			LOG.info("5. 开启微信状态通知");
+			LOG.info("5. Start notification");
 			loginService.wxStatusNotify();
 
-			LOG.info("6. 获取联系人信息");
+			LOG.info("6. Get contacts");
 			loginService.webWxGetContact();
 
-			LOG.info("7. 获取群好友及群好友列表");
+			LOG.info("7. Get Groups");
 			loginService.WebWxBatchGetContact();
 
-			LOG.info("8. 缓存本次登陆好友相关消息");
+			LOG.info("8. Get user information");
 			WechatTools.setUserInfo(); // 登陆成功后缓存本次登陆好友相关消息(NickName, UserName)
 
-			LOG.info("9. 开始接收消息");
+			LOG.info("9. Start message listen");
 			messageListener.start();
 
-			LOG.info("10.开启微信状态检测线程");
+			LOG.info("10.Start health listen");
 			loginStatusListener.start();
 		}
 	}

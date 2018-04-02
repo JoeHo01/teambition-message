@@ -8,4 +8,10 @@ public class WordsUtil {
 		String firstCase = words.substring(0, 1).toUpperCase();
 		return firstCase + words.substring(1);
 	}
+
+	public static String setMethodName(String name) {
+		if (StringUtils.isEmpty(name)) return name;
+		String firstCase = name.substring(0, 1).toUpperCase();
+		return "set" + firstCase + name.substring(1);
+	}
 }

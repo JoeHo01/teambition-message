@@ -10,7 +10,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.cookie.Cookie;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.BasicCookieStore;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -29,26 +28,12 @@ public class WechatHttpService {
 
     private static Logger LOG = LoggerFactory.getLogger(WechatHttpService.class);
 
-    private CloseableHttpClient httpClient = HttpClients.createDefault();
-
-    private CookieStore cookieStore;
+    private CloseableHttpClient httpClient;
 
     public WechatHttpService() {
-        cookieStore = new BasicCookieStore();
-
+        CookieStore cookieStore = new BasicCookieStore();
         // 将CookieStore设置到httpClient中
         httpClient = HttpClients.custom().setDefaultCookieStore(cookieStore).build();
-    }
-
-    public String getCookie(String name) {
-        List<Cookie> cookies = cookieStore.getCookies();
-        for (Cookie cookie : cookies) {
-            if (cookie.getName().equalsIgnoreCase(name)) {
-                return cookie.getValue();
-            }
-        }
-        return null;
-
     }
 
     /**
@@ -61,7 +46,7 @@ public class WechatHttpService {
      */
     public HttpEntity doGet(String url, List<BasicNameValuePair> params, boolean redirect, Map<String, String> headerMap) {
         HttpEntity entity = null;
-        HttpGet httpGet = new HttpGet();
+        HttpGet httpGet;
 
         try {
             if (params != null) {
@@ -99,7 +84,7 @@ public class WechatHttpService {
      */
     public HttpEntity doPost(String url, String paramsStr) {
         HttpEntity entity = null;
-        HttpPost httpPost = new HttpPost();
+        HttpPost httpPost;
         try {
             StringEntity params = new StringEntity(paramsStr, Consts.UTF_8);
             httpPost = new HttpPost(url);

@@ -1,5 +1,7 @@
 package com.d1m.tbmessage.server.database.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class ProjectDO {
 
 	private String id;
@@ -8,8 +10,15 @@ public class ProjectDO {
 
 	private String description;
 
-	private String projectTag;
+	private String logo;
 
+	@JsonProperty("isArchived")
+	private short archived;
+
+	@JsonProperty("_creatorId")
+	private String creatorId;
+
+	@JsonProperty("_organizationId")
 	private String organizationId;
 
 	public String getId() {
@@ -36,12 +45,28 @@ public class ProjectDO {
 		this.description = description;
 	}
 
-	public String getProjectTag() {
-		return projectTag;
+	public String getLogo() {
+		return logo;
 	}
 
-	public void setProjectTag(String projectTag) {
-		this.projectTag = projectTag;
+	public void setLogo(String logo) {
+		this.logo = logo;
+	}
+
+	public short getArchived() {
+		return archived;
+	}
+
+	public void setArchived(short archived) {
+		this.archived = archived;
+	}
+
+	public String getCreatorId() {
+		return creatorId;
+	}
+
+	public void setCreatorId(String creatorId) {
+		this.creatorId = creatorId;
 	}
 
 	public String getOrganizationId() {
